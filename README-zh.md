@@ -7,9 +7,13 @@
 5. esay-mock https://easy-mock.com/   远端数据模拟  
 6. sweet alert https://sweetalert.js.org/guides/ 弹窗模态框
 <<<<<<< HEAD
+<<<<<<< HEAD
 7. printjs http://printjs.crabbly.com/  打印插件
 =======
 7. printjs http://printjs.crabbly.com/  打印111
+>>>>>>> dev
+=======
+7. printjs http://printjs.crabbly.com/  打印222333
 >>>>>>> dev
 8. 
 
