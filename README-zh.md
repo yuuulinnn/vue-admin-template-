@@ -6,7 +6,11 @@
 4. mock.js http://mockjs.com/examples.html 本地数据模拟
 5. esay-mock https://easy-mock.com/   远端数据模拟  
 6. sweet alert https://sweetalert.js.org/guides/ 弹窗模态框
+<<<<<<< HEAD
 7. printjs http://printjs.crabbly.com/  打印插件
+=======
+7. printjs http://printjs.crabbly.com/  打印111
+>>>>>>> dev
 8. 
 
 
