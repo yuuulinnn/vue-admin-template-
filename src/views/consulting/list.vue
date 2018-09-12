@@ -51,7 +51,7 @@
 
 			<el-table-column align="left" show-overflow-tooltip>
 				<template slot-scope="scope">
-					<router-link :to="'/consultation/edit/'+scope.row.id" class="link-type">
+					<router-link :to="'/consulting/edit/'+scope.row.id" class="link-type">
 						<em class="category">[{{ scope.row.category }}]</em>
 						<span>{{ scope.row.title }}</span>
 						<i class="fa" v-bind:class="{ 'fa-tags': scope.row.include_remark }"></i>

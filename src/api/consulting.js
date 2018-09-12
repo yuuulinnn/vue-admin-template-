@@ -21,7 +21,7 @@ export function fetchList(query) {
 
 export function fetchArticle(id) {
   return request({
-    url: '/article/detail',
+    url: '/consulting/edit',
     method: 'get',
     params: { id }
   })
