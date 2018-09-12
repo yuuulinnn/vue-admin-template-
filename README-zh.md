@@ -41,11 +41,11 @@ npm run build --report
 | 303        | 未知错误 | Unknown error Try again later. |
 | 304        | 账户已登出，或不存在 | Unknown error Try again later. |
 | 305        | 用户名与Token 不匹配 | The name does not match the token. Please check the data. |
-| 401        | 非法的token  |  
-| 402        | 其他客户端登录了 |
-| 403        | token过期    |
-| 501        | 没有数据     |
-| 502        | 没有此接口   |
+| 401        | 非法的token  | Invalid Token  |  
+| 402        | 其他客户端登录了 | The other clients have already logged in. |
+| 403        | token过期    | Token expired.  |
+| 501        | 没有数据     | No Post/Get Data  |
+| 502        | 没有此接口   | No Api |
 
 
 
