@@ -6,15 +6,7 @@
 4. mock.js http://mockjs.com/examples.html 本地数据模拟
 5. esay-mock https://easy-mock.com/   远端数据模拟  
 6. sweet alert https://sweetalert.js.org/guides/ 弹窗模态框
-<<<<<<< HEAD
-<<<<<<< HEAD
 7. printjs http://printjs.crabbly.com/  打印插件
-=======
-7. printjs http://printjs.crabbly.com/  打印111
->>>>>>> dev
-=======
-7. printjs http://printjs.crabbly.com/  打印222333
->>>>>>> dev
 8. 
 
 
@@ -40,5 +32,11 @@ npm run build
 npm run build --report
 ```
 
-
+## 状态码
+200：正常
+401:非法的token
+402:其他客户端登录了
+403:Token 过期了
+501：没有数据
+502：没有此接口
 
