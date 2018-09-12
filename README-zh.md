@@ -39,7 +39,7 @@ npm run build --report
 | 301        | 用户不存在 | No User |
 | 302        | 密码错误 | Password Error |
 | 303        | 未知错误 | Unknown error Try again later. |
-| 304        | 账户已登出，或不存在 | Unknown error Try again later. |
+| 304        | 账户已登出 | The account has already been logged out |
 | 305        | 用户名与Token 不匹配 | The name does not match the token. Please check the data. |
 | 401        | 非法的token  | Invalid Token  |  
 | 402        | 其他客户端登录了 | The other clients have already logged in. |
