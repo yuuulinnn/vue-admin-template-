@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 
+
 export function fetchCategory(query) {
   return request({
     url: '/consulting/category',

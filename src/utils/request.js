@@ -2,12 +2,16 @@ import axios from 'axios'
 import { Message, MessageBox } from 'element-ui'
 import store from '../store'
 import { getToken } from '@/utils/auth'
+import Qs from 'qs'
+
 
 // 创建axios实例
 const service = axios.create({
   baseURL: process.env.BASE_API, // api的base_url
-  timeout: 5000 // 请求超时时间
+  timeout: 5000 // 请求超时时间,
 })
+
+
 
 // request拦截器
 service.interceptors.request.use(
@@ -15,6 +19,9 @@ service.interceptors.request.use(
     if (store.getters.token) {
       config.headers['X-Token'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
     }
+		if(config.method=='post'){ //让POST请求都
+			config.data = Qs.stringify(config.data)
+		}
     return config
   },
   error => {
