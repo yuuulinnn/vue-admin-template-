@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import Qs from 'qs'
 
 export function fetchCategory(query) {
   return request({
@@ -39,7 +40,7 @@ export function createArticle(data) {
   return request({
     url: '/article/create',
     method: 'post',
-    data
+    data: Qs.stringify(data)
   })
 }
 
@@ -47,6 +48,6 @@ export function updateConsulting(data) {
   return request({
     url: '/consulting/update',
     method: 'post',
-    data
+    data: Qs.stringify(data)
   })
 }
