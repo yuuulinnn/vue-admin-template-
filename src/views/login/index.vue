@@ -34,18 +34,10 @@
 </template>
 
 <script>
-import { isvalidUsername } from '@/utils/validate'
 import THREE from "@/utils/three";
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
-        callback(new Error('请输入正确的用户名'))
-      } else {
-        callback()
-      }
-    }
     const validatePass = (rule, value, callback) => {
       if (value.length < 5) {
         callback(new Error('密码不能小于5位'))
@@ -59,7 +51,7 @@ export default {
         password: 'admin'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        username: [{ required: true, trigger: 'blur'}],
         password: [{ required: true, trigger: 'blur', validator: validatePass }]
       },
       loading: false,
