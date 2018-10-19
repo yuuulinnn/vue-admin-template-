@@ -45,6 +45,7 @@ npm run build --report
 | 401        | 非法的token  | Invalid Token  |  
 | 402        | 其他客户端登录了 | The other clients have already logged in. |
 | 403        | token过期    | Token expired.  |
+| 405        | 没有查询数据  | No query results.|
 | 501        | 没有数据     | No Post/Get Data  |
 | 502        | 没有此接口   | No Api |
 
