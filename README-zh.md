@@ -48,8 +48,7 @@ npm run build --report
 | 405        | 没有查询数据  | No query results.|
 | 501        | 没有数据     | No Post/Get Data  |
 | 502        | 没有此接口   | No Api |
-| 601        | 文件上传异常，请检查   | File upload exception, please check |
-
+| 602        | 文件上传异常，请检查   | File upload exception, please check |
 
 
 
