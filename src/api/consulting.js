@@ -51,3 +51,27 @@ export function updateConsulting(data) {
     data
   })
 }
+
+export function forwardingList(query) {
+  return request({
+    url: '/consulting/forwading/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function forwardingUpdate(data) {
+  return request({
+    url: '/consulting/forwading/update',
+    method: 'post',
+    data
+  })
+}
+
+export function forwardingAdd(data) {
+  return request({
+    url: '/consulting/forwading/add',
+    method: 'post',
+    data
+  })
+}

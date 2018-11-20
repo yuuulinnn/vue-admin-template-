@@ -17,10 +17,10 @@
 
 		<el-table :data="list" :show-header="false" style="width: 100%">
 
-			<el-table-column width="30px" align="center">
+			<el-table-column width="40px">
 				<template slot-scope="scope">
 					<el-checkbox-group v-model="checked" @change="handleCheckedChange">
-						<el-checkbox :label="scope.row.id "></el-checkbox>
+						<el-checkbox :label="scope.row.id"  style="padding-left: 15px; padding-right: 15px;"></el-checkbox>
 					</el-checkbox-group>
 				</template>
 			</el-table-column>
@@ -71,7 +71,6 @@
 				</template>
 			</el-table-column>
 		</el-table>
-
 		<div class="pagination-container">
 			<el-pagination :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" :total="total" background
 			    layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange"
@@ -152,6 +151,9 @@
 				this.checked = []
 				this.isIndeterminate = false
 				fetchList(this.listQuery).then(response => {
+					this.changeCategory.searchKeyword = ''
+					this.changeCategory.searchStartTime = ''
+					this.changeCategory.searchEndTime = ''
 					this.categoryFilter = response.data.categoryFilter
 					this.list = response.data.items
 					for (let i = 0; i < this.categoryFilter.length; i++) {
@@ -418,6 +420,7 @@
 </script>
 <style rel="stylesheet/scss" lang="scss">
 	.app-container {
+		padding: 13px 0px;
 		.el-table--medium td,
 		.app-container .el-table--medium th {
 			padding: 14px 0 10px;
@@ -428,7 +431,11 @@
 		.el-checkbox__label {
 			display: none;
 		}
+		.el-pagination {
+			padding: 20px 15px 10px;
+		}
 	}
+
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 	.app-container {
@@ -438,12 +445,12 @@
 		color: #404a54;
 		.artivle-filter {
 			padding-bottom: 13px;
-			padding-left: 10px;
+			padding-left: 16px;
 			border-bottom: 1px solid #e7eaec;
 		}
 		.artivle-batch-bar {
 			background: #f9f8f8;
-			padding: 7px 10px;
+			padding: 7px 16px;
 			border-bottom: 1px solid #e7eaec;
 			.check-all {
 				padding-right: 10px;
