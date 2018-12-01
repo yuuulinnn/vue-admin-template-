@@ -191,20 +191,16 @@
 						for (let i = 0; i < this.list.length; i++) {
 							if (this.list[i].id === id && val) {
 								this.list[i].important = false
-								this.$notify({
-									title: '성공',
-									message: '해제되습니다',
-									type: 'success',
-									duration: 2000
-								})
+								this.$message({
+									type: 'info',
+									message: '해제되습니다'
+								});
 							} else if (this.list[i].id === id && !val) {
 								this.list[i].important = true
-								this.$notify({
-									title: '성공',
-									message: '설치되습니다',
+								this.$message({
 									type: 'success',
-									duration: 2000
-								})
+									message: '설치되습니다'
+								});
 							}
 						}
 						this.loading = false
@@ -233,20 +229,16 @@
 						for (let i = 0; i < this.list.length; i++) {
 							if (this.list[i].id === id && val) {
 								this.list[i].unread = false
-								this.$notify({
-									title: '성공',
-									message: '해제되습니다',
-									type: 'success',
-									duration: 2000
-								})
+								this.$message({
+									type: 'info',
+									message: '해제되습니다'
+								});
 							} else if (this.list[i].id === id && !val) {
 								this.list[i].unread = true
-								this.$notify({
-									title: '성공',
-									message: '설치되습니다',
+								this.$message({
 									type: 'success',
-									duration: 2000
-								})
+									message: '설치되습니다'
+								});
 							}
 						}
 						this.loading = false
@@ -257,44 +249,29 @@
 				})
 			},
 			handleDelete(id, title) {
-				swal({
-						icon: "warning",
-						title: "이 정보를 삭제하시겠습니까?",
-						text: title,
-						buttons: {
-							yes: {
-								text: "네",
-								closeModal: false,
-							},
-							no: {
-								text: "아니요",
-							}
-						},
-						closeOnClickOutside: false,
-					})
-					.then((value) => {
-						switch (value) {
-							case "yes":
-								let data = {
-									'id': id,
-									'delete': true
-								}
-								updateConsulting(data).then(valid => {
-									if (valid) {
-										swal.stopLoading()
-										swal.close()
-										this.getList()
-									} else {
-										console.log('error submit!!')
-										return false
-									}
-								})
-								break;
-
-							case "no":
-								swal.close();
+				this.$confirm('이 정보를 삭제하시겠습니까?', '팁스', {
+				confirmButtonText: '예',
+				cancelButtonText: '아니요',
+				type: 'warning'
+				}).then(() => {
+					let data = {
+						'id': id,
+						'delete': true
+					}
+					updateConsulting(data).then(valid => {
+						if (valid) {
+							this.getList()
+						} else {
+							console.log('error submit!!')
+							return false
 						}
-					});
+					})
+				}).catch(() => {
+				this.$message({
+					type: 'info',
+					message: '취소되엿습니다'
+				});          
+				});
 			},
 			batchRead() {
 				this.listLoading = true
@@ -313,12 +290,10 @@
 							}
 						}
 						this.listLoading = false
-						this.$notify({
-							title: '성공',
-							message: '설치되습니다',
+						this.$message({
 							type: 'success',
-							duration: 2000
-						})
+							message: '설치되습니다'
+						});
 					} else {
 						console.log('error submit!!')
 						return false
@@ -342,12 +317,10 @@
 							}
 						}
 						this.listLoading = false
-						this.$notify({
-							title: '성공',
-							message: '설치되습니다',
+						this.$message({
 							type: 'success',
-							duration: 2000
-						})
+							message: '설치되습니다'
+						});
 					} else {
 						console.log('error submit!!')
 						return false
@@ -355,45 +328,31 @@
 				})
 			},
 			batchDelete() {
-				swal({
-					icon: "warning",
-					title: "선택된 정보를 삭제하시겠습니까?",
-					buttons: {
-						yes: {
-							text: "네",
-							closeModal: false,
-						},
-						no: {
-							text: "아니요",
-						}
-					},
-					closeOnClickOutside: false,
-				})
-				.then((value) => {
-					switch (value) {
-						case "yes":
-							var data = []
-							for (let i = 0; i < this.checked.length; i++) {
-								data.push({
-									id: this.checked[i],
-									delete: true
-								})
-							}
-							updateConsulting(data).then(valid => {
-								if (valid) {
-									swal.stopLoading()
-									swal.close()
-									this.getList()
-								} else {
-									console.log('error submit!!')
-									return false
-								}
-							})
-							break;
-
-						case "no":
-							swal.close();
+				this.$confirm('선택된 정보들 삭제하시겠습니까?', '팁스', {
+				confirmButtonText: '예',
+				cancelButtonText: '아니요',
+				type: 'warning'
+				}).then(() => {
+					var data = []
+					for (let i = 0; i < this.checked.length; i++) {
+						data.push({
+							id: this.checked[i],
+							delete: true
+						})
 					}
+					updateConsulting(data).then(valid => {
+						if (valid) {
+							this.getList()
+						} else {
+							console.log('error submit!!')
+							return false
+						}
+					})
+				}).catch(() => {
+				this.$message({
+					type: 'info',
+					message: '취소되엿습니다'
+				});          
 				});
 			},
 			handleSizeChange(val) {
@@ -435,7 +394,6 @@
 			padding: 20px 15px 10px;
 		}
 	}
-
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 	.app-container {

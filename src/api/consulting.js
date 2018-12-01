@@ -68,6 +68,14 @@ export function forwardingUpdate(data) {
   })
 }
 
+export function forwardingDelete(data) {
+  return request({
+    url: '/consulting/forwading/delete',
+    method: 'post',
+    data
+  })
+}
+
 export function forwardingAdd(data) {
   return request({
     url: '/consulting/forwading/add',
