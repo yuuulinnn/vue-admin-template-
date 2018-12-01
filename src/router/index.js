@@ -54,8 +54,8 @@ export const constantRouterMap = [
 			meta: { title: 'Edit', noCache: true },
 			hidden: true
 		},
-		{ path: 'return', component: ()=>import('@/views/consulting/return'), name: 'RecycleBin', meta: { title: 'recyclebin' }},
-		{ path: 'set', component: ()=>import('@/views/consulting/set'), name: 'set', meta: { title: 'set' }}
+		{ path: 'recyclebin', component: ()=>import('@/views/consulting/recyclebin'), name: 'RecycleBin', meta: { title: 'recyclebin' }},
+		{ path: 'forwarding', component: ()=>import('@/views/consulting/forwarding'), name: 'forwarding', meta: { title: 'forwarding' }}
 	]
   },
   {

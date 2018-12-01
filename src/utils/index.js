@@ -68,3 +68,61 @@ export function formatTime(time, option) {
     )
   }
 }
+
+//格式化数字 - 每三位加逗号 number:需要转换的数字 n：精确度
+export function priceType(number,n) {
+	if(n != 0 ){
+		n = (n > 0 && n <= 20) ? n : 2; 
+	}
+	number = parseFloat((number + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";  
+	var sub_val = number.split(".")[0].split("").reverse(); 
+	var sub_xs = number.split(".")[1];  
+	var show_html = "";  
+	for (var i = 0; i < sub_val.length; i++){  
+		show_html += sub_val[i] + ((i + 1) % 3 === 0 && (i + 1) !== sub_val.length ? "," : "");  
+	}  
+	if(n === 0 ){
+		return show_html.split("").reverse().join("");  
+	}else{
+		return show_html.split("").reverse().join("") + "." + sub_xs;  
+	}
+}
+
+export const pickerOptions = [
+  {
+    text: '今天',
+    onClick(picker) {
+      const end = new Date()
+      const start = new Date(new Date().toDateString())
+      end.setTime(start.getTime())
+      picker.$emit('pick', [start, end])
+    }
+  },
+  {
+    text: '最近一周',
+    onClick(picker) {
+      const end = new Date(new Date().toDateString())
+      const start = new Date()
+      start.setTime(end.getTime() - 3600 * 1000 * 24 * 7)
+      picker.$emit('pick', [start, end])
+    }
+  },
+  {
+    text: '最近一个月',
+    onClick(picker) {
+      const end = new Date(new Date().toDateString())
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+      picker.$emit('pick', [start, end])
+    }
+  },
+  {
+    text: '最近三个月',
+    onClick(picker) {
+      const end = new Date(new Date().toDateString())
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+      picker.$emit('pick', [start, end])
+    }
+  }
+]

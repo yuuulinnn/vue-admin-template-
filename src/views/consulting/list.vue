@@ -17,10 +17,10 @@
 
 		<el-table :data="list" :show-header="false" style="width: 100%">
 
-			<el-table-column width="30px" align="center">
+			<el-table-column width="40px">
 				<template slot-scope="scope">
 					<el-checkbox-group v-model="checked" @change="handleCheckedChange">
-						<el-checkbox :label="scope.row.id "></el-checkbox>
+						<el-checkbox :label="scope.row.id"  style="padding-left: 15px; padding-right: 15px;"></el-checkbox>
 					</el-checkbox-group>
 				</template>
 			</el-table-column>
@@ -71,7 +71,6 @@
 				</template>
 			</el-table-column>
 		</el-table>
-
 		<div class="pagination-container">
 			<el-pagination :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" :total="total" background
 			    layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange"
@@ -152,6 +151,9 @@
 				this.checked = []
 				this.isIndeterminate = false
 				fetchList(this.listQuery).then(response => {
+					this.changeCategory.searchKeyword = ''
+					this.changeCategory.searchStartTime = ''
+					this.changeCategory.searchEndTime = ''
 					this.categoryFilter = response.data.categoryFilter
 					this.list = response.data.items
 					for (let i = 0; i < this.categoryFilter.length; i++) {
@@ -189,20 +191,16 @@
 						for (let i = 0; i < this.list.length; i++) {
 							if (this.list[i].id === id && val) {
 								this.list[i].important = false
-								this.$notify({
-									title: '성공',
-									message: '해제되습니다',
-									type: 'success',
-									duration: 2000
-								})
+								this.$message({
+									type: 'info',
+									message: '해제되습니다'
+								});
 							} else if (this.list[i].id === id && !val) {
 								this.list[i].important = true
-								this.$notify({
-									title: '성공',
-									message: '설치되습니다',
+								this.$message({
 									type: 'success',
-									duration: 2000
-								})
+									message: '설치되습니다'
+								});
 							}
 						}
 						this.loading = false
@@ -231,20 +229,16 @@
 						for (let i = 0; i < this.list.length; i++) {
 							if (this.list[i].id === id && val) {
 								this.list[i].unread = false
-								this.$notify({
-									title: '성공',
-									message: '해제되습니다',
-									type: 'success',
-									duration: 2000
-								})
+								this.$message({
+									type: 'info',
+									message: '해제되습니다'
+								});
 							} else if (this.list[i].id === id && !val) {
 								this.list[i].unread = true
-								this.$notify({
-									title: '성공',
-									message: '설치되습니다',
+								this.$message({
 									type: 'success',
-									duration: 2000
-								})
+									message: '설치되습니다'
+								});
 							}
 						}
 						this.loading = false
@@ -255,44 +249,29 @@
 				})
 			},
 			handleDelete(id, title) {
-				swal({
-						icon: "warning",
-						title: "이 정보를 삭제하시겠습니까?",
-						text: title,
-						buttons: {
-							yes: {
-								text: "네",
-								closeModal: false,
-							},
-							no: {
-								text: "아니요",
-							}
-						},
-						closeOnClickOutside: false,
-					})
-					.then((value) => {
-						switch (value) {
-							case "yes":
-								let data = {
-									'id': id,
-									'delete': true
-								}
-								updateConsulting(data).then(valid => {
-									if (valid) {
-										swal.stopLoading()
-										swal.close()
-										this.getList()
-									} else {
-										console.log('error submit!!')
-										return false
-									}
-								})
-								break;
-
-							case "no":
-								swal.close();
+				this.$confirm('이 정보를 삭제하시겠습니까?', '팁스', {
+				confirmButtonText: '예',
+				cancelButtonText: '아니요',
+				type: 'warning'
+				}).then(() => {
+					let data = {
+						'id': id,
+						'delete': true
+					}
+					updateConsulting(data).then(valid => {
+						if (valid) {
+							this.getList()
+						} else {
+							console.log('error submit!!')
+							return false
 						}
-					});
+					})
+				}).catch(() => {
+				this.$message({
+					type: 'info',
+					message: '취소되엿습니다'
+				});          
+				});
 			},
 			batchRead() {
 				this.listLoading = true
@@ -311,12 +290,10 @@
 							}
 						}
 						this.listLoading = false
-						this.$notify({
-							title: '성공',
-							message: '설치되습니다',
+						this.$message({
 							type: 'success',
-							duration: 2000
-						})
+							message: '설치되습니다'
+						});
 					} else {
 						console.log('error submit!!')
 						return false
@@ -340,12 +317,10 @@
 							}
 						}
 						this.listLoading = false
-						this.$notify({
-							title: '성공',
-							message: '설치되습니다',
+						this.$message({
 							type: 'success',
-							duration: 2000
-						})
+							message: '설치되습니다'
+						});
 					} else {
 						console.log('error submit!!')
 						return false
@@ -353,45 +328,31 @@
 				})
 			},
 			batchDelete() {
-				swal({
-					icon: "warning",
-					title: "선택된 정보를 삭제하시겠습니까?",
-					buttons: {
-						yes: {
-							text: "네",
-							closeModal: false,
-						},
-						no: {
-							text: "아니요",
-						}
-					},
-					closeOnClickOutside: false,
-				})
-				.then((value) => {
-					switch (value) {
-						case "yes":
-							var data = []
-							for (let i = 0; i < this.checked.length; i++) {
-								data.push({
-									id: this.checked[i],
-									delete: true
-								})
-							}
-							updateConsulting(data).then(valid => {
-								if (valid) {
-									swal.stopLoading()
-									swal.close()
-									this.getList()
-								} else {
-									console.log('error submit!!')
-									return false
-								}
-							})
-							break;
-
-						case "no":
-							swal.close();
+				this.$confirm('선택된 정보들 삭제하시겠습니까?', '팁스', {
+				confirmButtonText: '예',
+				cancelButtonText: '아니요',
+				type: 'warning'
+				}).then(() => {
+					var data = []
+					for (let i = 0; i < this.checked.length; i++) {
+						data.push({
+							id: this.checked[i],
+							delete: true
+						})
 					}
+					updateConsulting(data).then(valid => {
+						if (valid) {
+							this.getList()
+						} else {
+							console.log('error submit!!')
+							return false
+						}
+					})
+				}).catch(() => {
+				this.$message({
+					type: 'info',
+					message: '취소되엿습니다'
+				});          
 				});
 			},
 			handleSizeChange(val) {
@@ -418,6 +379,7 @@
 </script>
 <style rel="stylesheet/scss" lang="scss">
 	.app-container {
+		padding: 13px 0px;
 		.el-table--medium td,
 		.app-container .el-table--medium th {
 			padding: 14px 0 10px;
@@ -427,6 +389,9 @@
 		}
 		.el-checkbox__label {
 			display: none;
+		}
+		.el-pagination {
+			padding: 20px 15px 10px;
 		}
 	}
 </style>
@@ -438,12 +403,12 @@
 		color: #404a54;
 		.artivle-filter {
 			padding-bottom: 13px;
-			padding-left: 10px;
+			padding-left: 16px;
 			border-bottom: 1px solid #e7eaec;
 		}
 		.artivle-batch-bar {
 			background: #f9f8f8;
-			padding: 7px 10px;
+			padding: 7px 16px;
 			border-bottom: 1px solid #e7eaec;
 			.check-all {
 				padding-right: 10px;
