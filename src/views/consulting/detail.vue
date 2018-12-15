@@ -16,67 +16,25 @@
 				</div>
 			</sticky>
 			<div id="printJS-form">
-				<table width="100%" border="0">
-				  <tbody>
-				    <tr>
-				      <td style="width:100px; border-bottom: 1px solid #999; padding: 15px;">Category:</td>
-				      <td style="border-bottom: 1px solid #999;">{{postForm.category}}</td>
-				    </tr>
-				    <tr>
-				      <td style="width:100px; border-bottom: 1px solid #999; padding: 15px;">Author:</td>
-				      <td style="border-bottom: 1px solid #999;">{{postForm.author}}</td>
-				    </tr>
-				    <tr>
-				      <td style="width:100px; border-bottom: 1px solid #999; padding: 15px;">Email:</td>
-				      <td style="border-bottom: 1px solid #999;">{{postForm.email}}</td>
-				    </tr>
-				    <tr>
-				      <td style="width:100px; border-bottom: 1px solid #999; padding: 15px;">Phone:</td>
-				      <td style="border-bottom: 1px solid #999;">{{postForm.phone}}</td>
-				    </tr>
-				    <tr>
-				      <td style="width:100px; border-bottom: 1px solid #999; padding: 15px;">SendTime:</td>
-				      <td style="border-bottom: 1px solid #999;">{{postForm.send_time}}</td>
-				    </tr>
-					<tr>
-					<td style="width:100px; border-bottom: 1px solid #999; padding: 15px;">Title:</td>
-					<td style="border-bottom: 1px solid #999;">{{postForm.title}}</td>
-					</tr>
-				    <tr>
-				      <td colspan="2" style="width:100px; border-bottom: 1px solid #999; padding: 15px;">{{postForm.content}}</td>
-				    </tr>
-				    <tr>
-				      <td colspan="2" style="width:100px; border-bottom: 1px solid #999; padding: 15px;"><span v-for="file in files" :key="file.name">
-								<img :src="file.url" style="width:150px;">
-								{{file.name}}
-						</span></td>
-				    </tr>
-				    <tr>
-				      <td colspan="2" style="width:100px; border-bottom: 1px solid #999; padding: 15px;">Remark:</td>
-				    </tr>
-				    <tr>
-				      <td colspan="2" style="width:100px; border-bottom: 1px solid #999; padding: 15px;">{{postForm.remark_content}}</td>
-				    </tr>
-				  </tbody>
-				</table>
+				
 			</div>
 			<div class="message-content">
 				<div class="head">
 					<div class="title">
-						<span>[{{postForm.category}}]</span>{{postForm.title}}</div>
+						<span>[{{formData.cat_name}}]</span>{{formData.title}}</div>
 					<div class="author">
 						<span>
-							<i class="fa fa-user-circle-o"></i>{{postForm.author}}</span>
+							<i class="fa fa-user-circle-o"></i>{{formData.author}}</span>
 						<span>
-							<i class="fa fa-envelope"></i>{{postForm.email}}</span>
+							<i class="fa fa-envelope"></i>{{formData.email}}</span>
 						<span>
-							<i class="fa fa-phone-square"></i>{{postForm.phone}}</span>
+							<i class="fa fa-phone-square"></i>{{formData.phone}}</span>
 						<span>
-							<i class="fa fa-clock-o"></i>{{postForm.send_time}}</span>
+							<i class="fa fa-clock-o"></i>{{formData.send_time}}</span>
 					</div>
 				</div>
 				<div class="content-text">
-					{{postForm.content}}
+					{{formData.content}}
 				</div>
 				<div class="content-file" v-if="filesLength > 0">
 					<div class="title">
@@ -104,7 +62,7 @@
 					  type="textarea"
 					  :autosize="{ minRows: 2, maxRows: 20}"
 					  placeholder=""
-					  v-model="postForm.remark_content">
+					  v-model="formData.remark">
 					</el-input>
 				</div>
 			</div>
@@ -113,19 +71,17 @@
 </template>
 
 <script>
-	import swal from 'sweetalert' //弹窗插件
 	import print from 'print-js' //打印插件
 	import Sticky from '@/components/Sticky' // 粘性header组件
-	import { getForm , updFrom } from '@/api/consulting' 
-	
+	import { getForm , batForm , updForm } from '@/api/consulting' 
 	export default {
-		name: 'ArticleDetail',
+		name: 'FormDetail',
 		components: {
 			Sticky
 		},
 		data() {
 			return {
-				postForm: [],
+				formData: [],
 				files: [],
 				loading: true,
 			}
@@ -143,7 +99,7 @@
 			fetchData(id) {
 				this.loading = true
 				getForm(id).then(response => {
-					this.postForm = response.data
+					this.formData = response.data
 					if (response.data.files.length > 0) {
 						for (let i = 0; i < response.data.files.length; i++) {
 							let fileName = response.data.files[i].lastIndexOf("/")
@@ -159,12 +115,9 @@
 				})
 			},
 			submitForm() {
-				let data = {
-					'id': this.$route.params && this.$route.params.id,
-					'remark_content':this.postForm.remark_content
-				}
+				
 				this.loading = true
-				updateConsulting(data).then(valid => {
+				updForm(this.formData).then(valid => {
 					if (valid) {
 						this.loading = false
 						this.$notify({
@@ -180,49 +133,32 @@
 				})
 			},
 			handleDelete() {
-				swal({
-					icon: "warning",
-					title: "이 정보를 삭제하시겠습니까?",
-					buttons: {
-						yes: {
-							text: "네",
-							closeModal: false,
-						},
-						no: {
-							text: "아니요",
-						}
-					},
-					closeOnClickOutside: false,
-				})
-				.then((value) => {
-					switch (value) {
-						case "yes":
-							let data = {
-								'id': this.$route.params && this.$route.params.id,
-								'delete': true
+				this.$confirm('이 정보를 삭제하시겠습니까?', '팁스', {
+					confirmButtonText: '예',
+					cancelButtonText: '아니요',
+					type: 'warning'
+					}).then(() => {
+						var data = {
+							"id":this.formData.id,
+							"type":"delete"
+						};
+						this.loading = true
+						batForm(data).then(valid => {
+							if (valid) {
+								this.loading = false
+								this.$router.push({ path: '/consulting/index' })
+							} else {
+								this.loading = false
+								console.log('error submit!!')
+								return false
 							}
-							updateConsulting(data).then(valid => {
-								if (valid) {
-									swal.stopLoading()
-									swal.close()
-									this.$router.push({ path: '/consulting/index' })
-								} else {
-									console.log('error submit!!')
-									return false
-								}
-							})
-							break;
-
-						case "no":
-							swal.close();
-					}
+						})
+					}).catch(() => {
+					this.$message({
+						type: 'info',
+						message: '취소되엿습니다'
+					});          
 				});
-			},
-			getRemoteUserList(query) {
-				userSearch(query).then(response => {
-					if (!response.data.items) return
-					this.userListOptions = response.data.items.map(v => v.name)
-				})
 			},
 			printPage(){
 				printJS('printJS-form', 'html')

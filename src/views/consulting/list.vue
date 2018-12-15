@@ -1,108 +1,126 @@
 <template>
-	<div class="app-container" v-loading.body="listLoading">
-		<div class="artivle-filter">
-			<el-radio-group v-model="categoryFilterActive">
-				<el-radio v-for="(item,index) in categoryFilter" :key="item.id" @change="changeCategoryFilter(item.id)" :label="index+1">{{item.name}}({{item.count}})</el-radio>
-			</el-radio-group>
-		</div>
-		<div class="artivle-batch-bar">
-			<el-checkbox class="check-all" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange"></el-checkbox>
-			<el-button :loading="false" size="mini" class="batch-btn" @click="batchRead" :disabled="unChecked">
-				<i class="fa fa-eye"></i>읽음</el-button>
-			<el-button :loading="false" size="mini" class="batch-btn" @click="batchImportant" :disabled="unChecked">
-				<i class="fa fa-exclamation-circle"></i>중요</el-button>
-			<el-button :loading="false" size="mini" class="batch-btn" @click="batchDelete" :disabled="unChecked">
-				<i class="fa fa-trash-o"></i>삭제</el-button>
-		</div>
-
-		<el-table :data="list" :show-header="false" style="width: 100%">
-
-			<el-table-column width="40px">
-				<template slot-scope="scope">
-					<el-checkbox-group v-model="checked" @change="handleCheckedChange">
-						<el-checkbox :label="scope.row.id"  style="padding-left: 15px; padding-right: 15px;"></el-checkbox>
-					</el-checkbox-group>
-				</template>
-			</el-table-column>
-
-			<el-table-column width="30px" align="center">
-				<template slot-scope="scope">
-					<i class="fa" v-bind:class="[scope.row.important ? 'fa-star' : 'fa-star-o']" @click="handleImportant(scope.row.id,scope.row.important)"></i>
-				</template>
-			</el-table-column>
-
-			<el-table-column width="30px" align="center">
-				<template slot-scope="scope">
-					<i class="fa" v-bind:class="[scope.row.unread ? 'fa-envelope-o' : 'fa-envelope-open-o']" @click="handleUnread(scope.row.id,scope.row.unread)"></i>
-				</template>
-			</el-table-column>
-
-			<el-table-column align="left" width="70px" show-overflow-tooltip>
-				<template slot-scope="scope">
-					<span class="author">{{ scope.row.author }}</span>
-				</template>
-			</el-table-column>
-
-			<el-table-column align="center" width="30px">
-				<template slot-scope="scope">
-					<i class="fa" v-bind:class="{ 'fa-paperclip': scope.row.include_file }"></i>
-				</template>
-			</el-table-column>
-
-			<el-table-column align="left" show-overflow-tooltip>
-				<template slot-scope="scope">
-					<router-link :to="'/consulting/edit/'+scope.row.id" class="link-type">
-						<em class="category">[{{ scope.row.category }}]</em>
-						<span>{{ scope.row.title }}</span>
-						<i class="fa" v-bind:class="{ 'fa-tags': scope.row.include_remark }"></i>
-					</router-link>
-				</template>
-			</el-table-column>
-
-			<el-table-column width="120px" align="center">
-				<template slot-scope="scope">
-					<span>{{ scope.row.send_time }}</span>
-				</template>
-			</el-table-column>
-
-			<el-table-column width="40px" align="center">
-				<template slot-scope="scope">
-					<i class="fa fa-trash-o" @click="handleDelete(scope.row.id,scope.row.title)"></i>
-				</template>
-			</el-table-column>
-		</el-table>
-		<div class="pagination-container">
-			<el-pagination :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" :total="total" background
-			    layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange"
-			/>
-		</div>
-	</div>
+	<el-row :gutter="20">
+		<el-col :xl="4" :lg="5">
+			<div class="grid-content left-content">
+				<category-list ref="categoryList" @changeCategory="changeCategory" @search="search" ></category-list>
+			</div>	
+		</el-col>
+		<el-col :xl="20" :lg="19">
+			<div class="grid-content right-content">
+				<div class="app-container" v-loading="loading">
+						<div class="artivle-filter">
+							<el-radio-group v-model="statusFilterActive">
+								<el-radio v-for="(item,index) in statusFilter" :key="item.name" @change="changeStatusFilter(item.name)" :label="index+1">{{item.name}}({{item.count}})</el-radio>
+							</el-radio-group>
+						</div>
+						<div class="artivle-batch-bar">
+							<el-checkbox class="check-all" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange"></el-checkbox>
+							<el-button :loading="false" size="mini" class="batch-btn" @click="batchRead" :disabled="unChecked">
+								<i class="fa fa-eye"></i>읽음</el-button>
+							<el-button :loading="false" size="mini" class="batch-btn" @click="batchImportant" :disabled="unChecked">
+								<i class="fa fa-exclamation-circle"></i>중요</el-button>
+							<el-button :loading="false" size="mini" class="batch-btn" @click="batchDelete" :disabled="unChecked">
+								<i class="fa fa-trash-o"></i>삭제</el-button>
+						</div>
+						
+						<el-table :data="list" :show-header="false" style="width: 100%">
+				
+							<el-table-column width="40px">
+								<template slot-scope="scope">
+									<el-checkbox-group v-model="checked" @change="handleCheckedChange">
+										<el-checkbox :label="scope.row.id"  style="padding-left: 15px; padding-right: 15px;"></el-checkbox>
+									</el-checkbox-group>
+								</template>
+							</el-table-column>
+				
+							<el-table-column width="30px" align="center">
+								<template slot-scope="scope">
+									<i class="fa" :class="[scope.row.status.important ? 'fa-star' : 'fa-star-o']"  @click="handleImportant(scope.row.id,scope.row.status.important)"></i>
+								</template>
+							</el-table-column>
+				
+							<el-table-column width="30px" align="center">
+								<template slot-scope="scope">
+									<i class="fa" :class="[scope.row.status.unread ? 'fa-envelope-o' : 'fa-envelope-open-o']" @click="handleUnread(scope.row.id,scope.row.status.unread)"></i>
+								</template>
+							</el-table-column>
+				
+							<el-table-column align="left" width="70px" show-overflow-tooltip>
+								<template slot-scope="scope">
+									<span class="author">{{ scope.row.author }}</span>
+								</template>
+							</el-table-column>
+				
+							<el-table-column align="center" width="30px">
+								<template slot-scope="scope">
+									<i class="fa" v-bind:class="{ 'fa-paperclip': scope.row.status.file }"></i>
+								</template>
+							</el-table-column>
+				
+							<el-table-column align="left" show-overflow-tooltip>
+								<template slot-scope="scope">
+									<router-link :to="'/consulting/detail/'+scope.row.id" class="link-type">
+										<em class="category">[{{ scope.row.cate_name }}]</em>
+										<span>{{ scope.row.title }}</span>
+										<i class="fa" v-bind:class="{ 'fa-tags': scope.row.status.remark }"></i>
+									</router-link>
+								</template>
+							</el-table-column>
+				
+							<el-table-column width="120px" align="center">
+								<template slot-scope="scope">
+									<span>{{ scope.row.send_time }}</span>
+								</template>
+							</el-table-column>
+				
+							<el-table-column width="40px" align="center">
+								<template slot-scope="scope">
+									<i class="fa fa-trash-o" @click="handleDelete(scope.row.id,scope.row.title)"></i>
+								</template>
+							</el-table-column>
+						</el-table>
+						<div class="pagination-container">
+							<el-pagination :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" :total="total" background
+							    layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+							/>
+						</div>
+					</div>
+					{{list}}
+			</div>
+		</el-col>
+	</el-row>
+	
 </template>
 
 <script>
+	import categoryList from './category' //引入分类组件
 	import {
-		fetchList,
-		updateConsulting
+		getFormList,
+		getFilter,
+		batForm,
+		updForm,
 	} from '@/api/consulting'
-	import swal from 'sweetalert'
 	export default {
-		name: 'ArticleList',
+		name: 'formList',
+		components: {
+			categoryList, //引入吸附顶部组件
+		},
 		data() {
 			return {
 				list: null,
-				categoryFilter: [],
-				categoryFilterActive: 1,
+				statusFilter: [],
+				statusFilterActive: 1,
 				id: [],
 				total: 0,
-				listLoading: true,
+				loading: true,
 				listQuery: {
 					page: 1,
 					limit: 10,
-					categoryId: 'all',
-					categoryFilterId: '',
-					searchKeyword: '',
-					searchStartTime: '',
-					searchEndTime: '',
+					cat_id: 'all',
+					status: '',
+					keyword: '',
+					start: '',
+					end: '',
 				},
 				checkAll: false,
 				checked: '',
@@ -123,53 +141,68 @@
 			this.getList()
 		},
 		methods: {
-			search(keyword, startTime, endTime) {
-				this.listQuery.searchKeyword = keyword
-				this.listQuery.searchStartTime = startTime
-				this.listQuery.searchEndTime = endTime
-				this.getList()
-			},
-			changeCategory(id, name) {
+			clearQueryList(){
 				this.listQuery = {
 					page: 1,
 					limit: 10,
-					categoryId: id,
-					categoryFilterId: '',
-					searchKeyword: '',
-					searchStartTime: '',
-					searchEndTime: ''
+					cat_id: 'all',
+					status: '',
+					keyword: '',
+					start: '',
+					end: '',
 				}
+			},
+			search(keyword, startTime, endTime) {
+				this.listQuery.keyword = keyword
+				this.listQuery.start = startTime
+				this.listQuery.end = endTime
 				this.getList()
 			},
-			changeCategoryFilter(id) {
-				this.listQuery.categoryFilterId = id
+			changeCategory(id) {
+				this.listQuery = {
+					page: 1,
+					limit: 10,
+					cat_id: id,
+					status: '',
+					keyword: '',
+					start: '',
+					end: '',
+				}
+				this.statusFilterActive = 1
+				this.getList()
+			},
+			changeStatusFilter(name) {
+				this.listQuery.page = 1
+				this.listQuery.status = name
 				this.getList()
 			},
 			getList() {
-				this.listLoading = true
+				this.loading = true
 				this.checkAll = false
 				this.checked = []
 				this.isIndeterminate = false
-				fetchList(this.listQuery).then(response => {
+				getFormList(this.listQuery).then(response => {
 					this.changeCategory.searchKeyword = ''
 					this.changeCategory.searchStartTime = ''
 					this.changeCategory.searchEndTime = ''
-					this.categoryFilter = response.data.categoryFilter
-					this.list = response.data.items
-					for (let i = 0; i < this.categoryFilter.length; i++) {
-						if (this.categoryFilter[i].id === this.listQuery.categoryFilterId) {
-							this.total = this.categoryFilter[i].count
-						} else if (this.listQuery.categoryFilterId === '') {
-							this.total = this.categoryFilter[0].count
-						}
+					this.list = response.data
+					this.id = []
+					for (let i = 0; i < response.data.length; i++) {
+						this.id.push(response.data[i].id);
 					}
 					
-					this.id = []
-					for (let i = 0; i < response.data.items.length; i++) {
-						this.id.push(response.data.items[i].id);
-					}
-					this.listLoading = false
-					this.$emit('getListSuccess'); //触发父组件事件
+					getFilter(this.listQuery).then(response => {
+						this.statusFilter = response.data
+						for (let i = 0; i < this.statusFilter.length; i++) {
+							if (this.statusFilter[i].name === this.listQuery.status) {
+								this.total = this.statusFilter[i].count
+							} else if (this.listQuery.status === '') {
+								this.total = this.statusFilter[0].count
+							}
+						}
+						this.loading = false
+					})
+
 				})
 			},
 			handleImportant(id, val) {
@@ -185,18 +218,18 @@
 						'important': true
 					}
 				}
-				updateConsulting(data).then(valid => {
+				updForm(data).then(valid => {
 					if (valid) {
 						this.loading = true
 						for (let i = 0; i < this.list.length; i++) {
 							if (this.list[i].id === id && val) {
-								this.list[i].important = false
+								this.list[i].status.important = false
 								this.$message({
 									type: 'info',
 									message: '해제되습니다'
 								});
 							} else if (this.list[i].id === id && !val) {
-								this.list[i].important = true
+								this.list[i].status.important = true
 								this.$message({
 									type: 'success',
 									message: '설치되습니다'
@@ -211,42 +244,71 @@
 				})
 			},
 			handleUnread(id, val) {
-				let data = null
-				if (val) {
-					data = {
-						'id': id,
-						'unread': false
-					}
-				} else {
-					data = {
-						'id': id,
-						'unread': true
-					}
-				}
-				updateConsulting(data).then(valid => {
+				this.loading = true
+				var data = {
+					"id":[id],
+					"type":val?"read":"unread"
+				};
+				batForm(data).then(valid => {
 					if (valid) {
-						this.loading = true
 						for (let i = 0; i < this.list.length; i++) {
-							if (this.list[i].id === id && val) {
-								this.list[i].unread = false
-								this.$message({
-									type: 'info',
-									message: '해제되습니다'
-								});
-							} else if (this.list[i].id === id && !val) {
-								this.list[i].unread = true
-								this.$message({
-									type: 'success',
-									message: '설치되습니다'
-								});
+							if (this.list[i].id === id) {
+								if(val){
+									this.list[i].status.unread = true
+									console.log(this.list[i].status.unread)
+								}else{
+									this.list[i].status.unread = false
+									console.log(this.list[i].status.unread)
+								}
 							}
 						}
 						this.loading = false
+						this.$message({
+							type: 'success',
+							message: '설치되습니다'
+						});
 					} else {
 						console.log('error submit!!')
 						return false
 					}
 				})
+				
+// 				let data = null
+// 				if (val) {
+// 					data = {
+// 						'id': id,
+// 						'unread': false
+// 					}
+// 				} else {
+// 					data = {
+// 						'id': id,
+// 						'unread': true
+// 					}
+// 				}
+// 				updForm(data).then(valid => {
+// 					if (valid) {
+// 						this.loading = true
+// 						for (let i = 0; i < this.list.length; i++) {
+// 							if (this.list[i].id === id && val) {
+// 								this.list[i].status.unread = false
+// 								this.$message({
+// 									type: 'info',
+// 									message: '해제되습니다'
+// 								});
+// 							} else if (this.list[i].id === id && !val) {
+// 								this.list[i].status.unread = true
+// 								this.$message({
+// 									type: 'success',
+// 									message: '설치되습니다'
+// 								});
+// 							}
+// 						}
+// 						this.loading = false
+// 					} else {
+// 						console.log('error submit!!')
+// 						return false
+// 					}
+// 				})
 			},
 			handleDelete(id, title) {
 				this.$confirm('이 정보를 삭제하시겠습니까?', '팁스', {
@@ -254,11 +316,11 @@
 				cancelButtonText: '아니요',
 				type: 'warning'
 				}).then(() => {
-					let data = {
-						'id': id,
-						'delete': true
-					}
-					updateConsulting(data).then(valid => {
+					var data = {
+						"id":[id],
+						"type":"delete"
+					};
+					batForm(data).then(valid => {
 						if (valid) {
 							this.getList()
 						} else {
@@ -274,22 +336,19 @@
 				});
 			},
 			batchRead() {
-				this.listLoading = true
-				var data = []
-				for (let i = 0; i < this.checked.length; i++) {
-					data.push({
-						id: this.checked[i],
-						unread: false
-					})
-				}
-				updateConsulting(data).then(valid => {
+				this.loading = true
+				var data = {
+					"id":this.checked,
+					"type":"read"
+				};
+				batForm(data).then(valid => {
 					if (valid) {
 						for (let i = 0; i < this.list.length; i++) {
 							if (data[i] !== undefined && this.list[i].id === data[i].id) {
-								this.list[i].unread = false
+								this.list[i].status.unread = false
 							}
 						}
-						this.listLoading = false
+						this.loading = false
 						this.$message({
 							type: 'success',
 							message: '설치되습니다'
@@ -301,22 +360,19 @@
 				})
 			},
 			batchImportant() {
-				this.listLoading = true
-				var data = []
-				for (let i = 0; i < this.checked.length; i++) {
-					data.push({
-						id: this.checked[i],
-						important: true
-					})
-				}
-				updateConsulting(data).then(valid => {
+				this.loading = true
+				var data = {
+					"id":this.checked,
+					"type":"important"
+				};
+				batForm(data).then(valid => {
 					if (valid) {
 						for (let i = 0; i < this.list.length; i++) {
 							if (data[i] !== undefined && this.list[i].id === data[i].id) {
-								this.list[i].important = true
+								this.list[i].status.important = true
 							}
 						}
-						this.listLoading = false
+						this.loading = false
 						this.$message({
 							type: 'success',
 							message: '설치되습니다'
@@ -333,14 +389,11 @@
 				cancelButtonText: '아니요',
 				type: 'warning'
 				}).then(() => {
-					var data = []
-					for (let i = 0; i < this.checked.length; i++) {
-						data.push({
-							id: this.checked[i],
-							delete: true
-						})
-					}
-					updateConsulting(data).then(valid => {
+					var data = {
+						"id":this.checked,
+						"type":"delete"
+					};
+					batForm(data).then(valid => {
 						if (valid) {
 							this.getList()
 						} else {

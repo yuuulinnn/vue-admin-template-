@@ -77,11 +77,11 @@
 
 <script>
 	import {
-		fetchCategory,
-		forwardingList,
-		forwardingUpdate,
-		forwardingDelete,
-		forwardingAdd,
+		getCatList,
+		getMailList,
+		updMailList,
+		delMailList,
+		addMailList,
 	} from '@/api/consulting'
 
 	import swal from 'sweetalert'

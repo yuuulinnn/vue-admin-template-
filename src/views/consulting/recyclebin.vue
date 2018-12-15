@@ -40,7 +40,7 @@
 <script>
 	import consultingList from './list' //引入列表组件
 	import Sticky from '@/components/Sticky' //引入吸附顶部组件
-	import { fetchCategory } from '@/api/consulting'
+	import { getCatList } from '@/api/consulting'
 	import { pickerOptions } from '@/utils' //引入时间选择器 通用区间设置
 	export default {
 		name: 'LeftSearchBar',

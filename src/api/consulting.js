@@ -1,84 +1,153 @@
 import request from '@/utils/request'
 
-
-export function fetchCategory(query) {
+//form
+export function getFormList(query) {
   return request({
-    url: '/consulting/category',
+    url: '/form/list',
     method: 'get',
     params: query
   })
 }
 
-export function fetchList(query) {
+export function getForm(id) {
   return request({
-    url: '/consulting/list',
-    method: 'get',
-    params: query
-  })
-}
-
-
-
-
-export function fetchArticle(id) {
-  return request({
-    url: '/consulting/edit',
+    url: '/form/detail',
     method: 'get',
     params: { id }
   })
 }
 
-export function fetchPv(pv) {
+export function addForm(data) {
   return request({
-    url: '/article/pv',
-    method: 'get',
-    params: { pv }
-  })
-}
-
-export function createArticle(data) {
-  return request({
-    url: '/article/create',
+    url: '/form/add',
     method: 'post',
     data
   })
 }
 
-export function updateConsulting(data) {
+export function batForm(data) {
   return request({
-    url: '/consulting/update',
+    url: '/form/bat',
     method: 'post',
     data
   })
 }
 
-export function forwardingList(query) {
+export function updForm(data) {
   return request({
-    url: '/consulting/forwading/list',
+    url: '/form/upd',
+    method: 'post',
+    data
+  })
+}
+
+//filter
+export function getFilter(query) {
+  return request({
+    url: '/form/filter',
     method: 'get',
     params: query
   })
 }
 
-export function forwardingUpdate(data) {
+
+//recycle
+export function getRecycleList(query) {
   return request({
-    url: '/consulting/forwading/update',
+    url: '/form/recycle/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function getRecycleForm(id) {
+  return request({
+    url: '/form/recycle/',
+    method: 'get',
+    params: { id }
+  })
+}
+
+export function delRecycle(data) {
+  return request({
+    url: '/form/recycle/del',
     method: 'post',
     data
   })
 }
 
-export function forwardingDelete(data) {
+export function reForm(data) {
   return request({
-    url: '/consulting/forwading/delete',
+    url: '/form/recycle/re',
     method: 'post',
     data
   })
 }
 
-export function forwardingAdd(data) {
+//category
+
+export function getCatList(query) {
   return request({
-    url: '/consulting/forwading/add',
+    url: '/form/cat/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function updCat(data) {
+  return request({
+    url: '/form/cat/upd',
+    method: 'post',
+    data
+  })
+}
+
+export function delCat(data) {
+  return request({
+    url: '/form/cat/del',
+    method: 'post',
+    data
+  })
+}
+
+export function addCat(data) {
+  return request({
+    url: '/form/cat/add',
+    method: 'post',
+    data
+  })
+}
+
+
+
+//mail
+export function getMailList(query) {
+  return request({
+    url: '/form/mail/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function updMail(data) {
+  return request({
+    url: '/form/mail/list',
+    method: 'post',
+    data
+  })
+}
+
+export function delMail(data) {
+  return request({
+    url: '/form/mail/list',
+    method: 'post',
+    data
+  })
+}
+
+export function addMail(data) {
+  return request({
+    url: '/form/mail/add',
     method: 'post',
     data
   })
