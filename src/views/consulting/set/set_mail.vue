@@ -1,6 +1,5 @@
 <template>
-
-	<el-col :span="12" class="forwarding-set"  v-loading.body="listLoading">
+	<div class="forwarding-set"  v-loading.body="listLoading">
 		<div class="title">
 			<span>이메일 수신 설정</span><button @click="addpopup = true"><i class="fa fa-plus-circle"></i>추가</button>
 		</div>
@@ -19,7 +18,7 @@
 				</template>
 			</el-table-column>
 
-			<el-table-column width="150px" align="left">
+			<el-table-column width="150px" align="left" show-overflow-tooltip>
 				<template slot-scope="scope">
 					<span class="name">{{ scope.row.name }}</span>
 				</template>
@@ -33,7 +32,7 @@
 			
 			<el-table-column width="40px" align="center">
 				<template slot-scope="scope">
-					<i class="fa fa-cog" ></i>
+					<i class="fa fa-cog"  @click="changeEmail(scope.row)"></i>
 				</template>
 			</el-table-column>
 			
@@ -64,12 +63,10 @@
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="closeAddPopup('form')">取 消</el-button>
-				<el-button type="primary" @click="sendAddForm('form')">确 定</el-button>
+				<el-button type="primary" @click="sendForm('form')">确 定</el-button>
 			</div>
 		</el-dialog>
-	
-		{{list}}
-	</el-col>
+	</div>
 </template>
 
 <script>
@@ -107,9 +104,10 @@
 					categoryId:[]
 				},
 				form:{
-				  name: '',
-				  email:'',
-				  cat_id:[]
+					"id":'',
+				  "name": '',
+				  "email":'',
+				  "cat_id":[]
 				},
 				rules: {
 					name: [
@@ -132,6 +130,13 @@
 				}
 				this.isIndeterminate = this.checked.length > 0 && this.checked.length < this.list.length;
 				this.checkAll = this.checked.length === this.list.length
+			},
+			checked: function(Value, oldValue) {
+				if (Value.length > 0) {
+					this.unChecked = false
+				} else {
+					this.unChecked = true
+				}
 			}
 		},
 		created() {
@@ -153,24 +158,51 @@
 			},
 			closeAddPopup(formName) {
 				this.addpopup = false;
+				this.clearform(formName);
 			},
-			sendAddForm(formName) {
+			clearform(formName){
+				this.form = {
+					"id":'',
+				  "name": '',
+				  "email":'',
+				  "cat_id":[]
+				}
+				this.formCheckbox.checkAll = false;
+				this.formCheckbox.isIndeterminate = false;
+				this.$refs[formName].clearValidate();
+			},
+			changeEmail(data){
+				this.form = {
+					"id": data.id,
+					"name": data.name,
+					"email": data.email,
+					"cat_id": data.cat_id
+				}
+				this.addpopup = true
+			},
+			sendForm(formName) {
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						this.addpopup = false
 						this.listLoading = true
-						addMail(this.form).then(response => {
-							if(valid) {
-								this.list.push(this.form);
-								for(let i = 0; i < this.list.length; i++){
-									if(this.list.length === i){
-										this.lidt[i].id = response.data.id
+							updMail(this.form).then(response => {
+								if(valid) {
+									if(this.form.id === ''){ // add new
+										this.form.id = response.data.id
+										this.list.push(this.form);
+									}else{ // updata
+										for(let i = 0; i < this.list.length; i++){
+											if(this.list[i].id === this.form.id){
+												this.list[i].name = this.form.name;
+												this.list[i].email = this.form.email;
+												this.list[i].cat_id = this.form.cat_id;
+											}
+										}	
 									}
+									this.clearform(formName);
+									this.listLoading = false;
 								}
-								this.listLoading = false;
-							
-							}
-						})
+							})
 					} else {
 						console.log('error submit!!');
 						return false;
@@ -221,6 +253,8 @@
 					message: '취소되엿습니다'
 				  });          
 				});
+			
+				
 			},
 			batchDelete() {
 				this.$confirm('선택된 정보들 삭제하시겠습니까?', '팁스', {

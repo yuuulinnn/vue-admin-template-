@@ -17,13 +17,7 @@ export function getForm(id) {
   })
 }
 
-export function addForm(data) {
-  return request({
-    url: '/form/add',
-    method: 'post',
-    data
-  })
-}
+
 
 export function batForm(data) {
   return request({
@@ -49,7 +43,7 @@ export function updForm(data) {
 
 export function getCatList(query) {
   return request({
-    url: '/form/cat/lists',
+    url: '/form/cat_lists',
     method: 'get',
     params: query
   })
@@ -57,7 +51,7 @@ export function getCatList(query) {
 
 export function updCat(data) {
   return request({
-    url: '/form/cat/upd',
+    url: '/form/cat_upd',
     method: 'post',
     data
   })
@@ -65,15 +59,7 @@ export function updCat(data) {
 
 export function delCat(data) {
   return request({
-    url: '/form/cat/del',
-    method: 'post',
-    data
-  })
-}
-
-export function addCat(data) {
-  return request({
-    url: '/form/cat/add',
+    url: '/form/cat_del',
     method: 'post',
     data
   })
@@ -84,7 +70,7 @@ export function addCat(data) {
 //mail
 export function getMailList(query) {
   return request({
-    url: '/form/mail/lists',
+    url: '/form/mail_lists',
     method: 'get',
     params: query
   })
@@ -92,7 +78,7 @@ export function getMailList(query) {
 
 export function updMail(data) {
   return request({
-    url: '/form/mail/upd',
+    url: '/form/mail_upd',
     method: 'post',
     data
   })
@@ -100,15 +86,7 @@ export function updMail(data) {
 
 export function delMail(data) {
   return request({
-    url: '/form/mail/del',
-    method: 'post',
-    data
-  })
-}
-
-export function addMail(data) {
-  return request({
-    url: '/form/mail/add',
+    url: '/form/mail_del',
     method: 'post',
     data
   })

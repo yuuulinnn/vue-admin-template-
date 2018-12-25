@@ -1,7 +1,9 @@
 <template>
 	<div class="container">
 		<el-row :gutter="20">
-			<set-mail ref="articleList"></set-mail>
+			<el-col :span="8">
+				<set-mail ref="articleList"></set-mail>
+			</el-col>
 		</el-row>
 	</div>
 </template>
