@@ -2,7 +2,7 @@
 	<div class="container">
 		<el-row :gutter="20">
 			<el-col :span="8">
-				<set-mail ref="articleList"></set-mail>
+				<set-mail></set-mail>
 			</el-col>
 		</el-row>
 	</div>
