@@ -1,95 +1,90 @@
 <template>
-	<div class="container">
-		<el-row :gutter="20">
-			<el-col :span="12" class="forwarding-set"  v-loading.body="listLoading">
-				<div class="title">
-					<span>이메일 수신 설정</span><button @click="addpopup = true"><i class="fa fa-plus-circle"></i>추가</button>
-				</div>
-				<div class="artivle-batch-bar">
-					<el-checkbox class="check-all" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange"></el-checkbox>
-					<el-button :loading="false" size="mini" class="batch-btn" @click="batchDelete" :disabled="unChecked">
-						<i class="fa fa-trash-o"></i>삭제</el-button>
-				</div>
-				<el-table :data="list" :show-header="false" style="width: 100%" class="bd">
-				
-					<el-table-column width="40px">
-						<template slot-scope="scope">
-							<el-checkbox-group v-model="checked" @change="handleCheckedChange">
-								<el-checkbox :label="scope.row.id "  style="padding-left: 7px;"></el-checkbox>
-							</el-checkbox-group>
-						</template>
-					</el-table-column>
-		
-					<el-table-column width="150px" align="left">
-						<template slot-scope="scope">
-							<span class="name">{{ scope.row.name }}</span>
-						</template>
-					</el-table-column>
-		
-					<el-table-column align="left" show-overflow-tooltip>
-						<template slot-scope="scope">
-							<span>{{ scope.row.email }}</span>
-						</template>
-					</el-table-column>
-					
-					<el-table-column width="40px" align="center">
-						<template slot-scope="scope">
-							<i class="fa fa-cog" ></i>
-						</template>
-					</el-table-column>
-					
-					<el-table-column width="40px" align="center">
-						<template slot-scope="scope">
-							<i class="fa fa-trash-o"  @click="handleDelete(scope.row.id,scope.row.email)"></i>
-						</template>
-					</el-table-column>
-				</el-table>
-				
-				<el-dialog :visible.sync="addpopup"   width="400px" class="addpopup" >
-					<el-form :model="form" ref="form" :rules="rules">
-						<el-form-item label="이름" prop="name" >
-							<el-input v-model="form.name"></el-input>
-						</el-form-item>
-						<el-form-item label="수신메일" prop="email">
-							<el-input v-model="form.email"></el-input>
-						</el-form-item>
-						<el-form-item label="카테고리"  class="formcheckgroup" prop="category">
-							<el-checkbox 
-							:indeterminate="formCheckbox.isIndeterminate" 
-							v-model="formCheckbox.checkAll" 
-							@change="formCheckallChange">전체</el-checkbox>
-								<el-checkbox-group v-model="form.category" @change="formCategoryChecked">
-								<el-checkbox v-for="item in formCheckbox.categorys" :label="item.id" :key="item.id">{{item.name}}</el-checkbox>
-							</el-checkbox-group>
-						</el-form-item>
-					</el-form>
-					<div slot="footer" class="dialog-footer">
-						<el-button @click="closeAddPopup('form')">取 消</el-button>
-						<el-button type="primary" @click="sendAddForm('form')">确 定</el-button>
-					</div>
-				</el-dialog>
 
-			</el-col>
-			<el-col :span="12"><div class="grid-content bg-purple">{{form}} {{list}}</div></el-col>
-		</el-row>
-	</div>	
+	<el-col :span="12" class="forwarding-set"  v-loading.body="listLoading">
+		<div class="title">
+			<span>이메일 수신 설정</span><button @click="addpopup = true"><i class="fa fa-plus-circle"></i>추가</button>
+		</div>
+		<div class="artivle-batch-bar">
+			<el-checkbox class="check-all" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange"></el-checkbox>
+			<el-button :loading="false" size="mini" class="batch-btn" @click="batchDelete" :disabled="unChecked">
+				<i class="fa fa-trash-o"></i>삭제</el-button>
+		</div>
+		<el-table :data="list" :show-header="false" style="width: 100%" class="bd">
+		
+			<el-table-column width="40px">
+				<template slot-scope="scope">
+					<el-checkbox-group v-model="checked" @change="handleCheckedChange">
+						<el-checkbox :label="scope.row.id "  style="padding-left: 7px;"></el-checkbox>
+					</el-checkbox-group>
+				</template>
+			</el-table-column>
+
+			<el-table-column width="150px" align="left">
+				<template slot-scope="scope">
+					<span class="name">{{ scope.row.name }}</span>
+				</template>
+			</el-table-column>
+
+			<el-table-column align="left" show-overflow-tooltip>
+				<template slot-scope="scope">
+					<span>{{ scope.row.email }}</span>
+				</template>
+			</el-table-column>
+			
+			<el-table-column width="40px" align="center">
+				<template slot-scope="scope">
+					<i class="fa fa-cog" ></i>
+				</template>
+			</el-table-column>
+			
+			<el-table-column width="40px" align="center">
+				<template slot-scope="scope">
+					<i class="fa fa-trash-o"  @click="handleDelete(scope.row.id,scope.row.email)"></i>
+				</template>
+			</el-table-column>
+		</el-table>
+		
+		<el-dialog :visible.sync="addpopup"   width="400px" class="addpopup" >
+			<el-form :model="form" ref="form" :rules="rules">
+				<el-form-item label="이름" prop="name" >
+					<el-input v-model="form.name"></el-input>
+				</el-form-item>
+				<el-form-item label="수신메일" prop="email">
+					<el-input v-model="form.email"></el-input>
+				</el-form-item>
+				<el-form-item label="카테고리"  class="formcheckgroup" prop="category">
+					<el-checkbox 
+					:indeterminate="formCheckbox.isIndeterminate" 
+					v-model="formCheckbox.checkAll" 
+					@change="formCheckallChange">전체</el-checkbox>
+						<el-checkbox-group v-model="form.cat_id" @change="formCategoryChecked">
+						<el-checkbox v-for="item in formCheckbox.categorys" :label="item.id" :key="item.id">{{item.name}}</el-checkbox>
+					</el-checkbox-group>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="closeAddPopup('form')">取 消</el-button>
+				<el-button type="primary" @click="sendAddForm('form')">确 定</el-button>
+			</div>
+		</el-dialog>
+	
+		{{list}}
+	</el-col>
 </template>
 
 <script>
 	import {
 		getCatList,
 		getMailList,
-		updMailList,
-		delMailList,
-		addMailList,
+		updMail,
+		delMail,
+		addMail,
 	} from '@/api/consulting'
-
-	import swal from 'sweetalert'
 	export default {
-		name: 'forwarding',
+		name: 'setMail',
 		data(){
 			var checkType = (rule, value, callback) => {
-				if (value.length < 1) {
+				if (this.form.cat_id.length < 1) {
 				  return callback(new Error('카테고리 선탁해주십시요'));
 				}else {
 					callback()
@@ -114,7 +109,7 @@
 				form:{
 				  name: '',
 				  email:'',
-				  category:[]
+				  cat_id:[]
 				},
 				rules: {
 					name: [
@@ -145,34 +140,36 @@
 		methods: {
 			getList() {
 				this.listLoading = true;
-				forwardingList().then(response => {
-					fetchCategory().then(response => {
-						this.formCheckbox.categorys = response.data.category ;
-						for(let i = 0; i < response.data.category.length; i++){
-							this.formCheckbox.categoryId.push(response.data.category[i].id);
+				getMailList().then(response => {
+					getCatList().then(response => {
+						this.formCheckbox.categorys = response.data ;
+						for(let i = 0; i < response.data.length; i++){
+							this.formCheckbox.categoryId.push(response.data[i].id);
 						};
 					})
-					this.list = response.data.list
+					this.list = response.data
 					this.listLoading = false;
 				})
 			},
 			closeAddPopup(formName) {
 				this.addpopup = false;
-				this.clearform(formName);
-			},
-			clearform(formName) {
-				this.form.category = [];
-				this.$refs[formName].resetFields();
 			},
 			sendAddForm(formName) {
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						this.addpopup = false
 						this.listLoading = true
-						forwardingAdd(this.form).then(response => {
-							this.list.push(response.data)
-							this.clearform(formName)
-							this.listLoading = false
+						addMail(this.form).then(response => {
+							if(valid) {
+								this.list.push(this.form);
+								for(let i = 0; i < this.list.length; i++){
+									if(this.list.length === i){
+										this.lidt[i].id = response.data.id
+									}
+								}
+								this.listLoading = false;
+							
+							}
 						})
 					} else {
 						console.log('error submit!!');
@@ -181,7 +178,7 @@
 				});
 			},
 			formCheckallChange(val) {
-				this.form.category = val ? this.formCheckbox.categoryId : [];
+				this.form.cat_id = val ? this.formCheckbox.categoryId : [];
 				this.formCheckbox.isIndeterminate = false;
 			},
 			formCategoryChecked(value) {
@@ -198,7 +195,7 @@
 					let data = []
 					data.push(id)
 					this.listLoading = true;
-					forwardingDelete(data).then(valid => {
+					delMail(data).then(valid => {
 						if (valid) {
 							this.checked = this.checked.filter(item => {
 								if(item === id) return false
@@ -233,7 +230,7 @@
 				}).then(() => {
 					this.listLoading = true;
 					var data = this.checked
-					forwardingDelete(data).then(valid => {
+					delMail(data).then(valid => {
 						if (valid) {
 							for(let i = 0; i < this.checked.length; i++){
 								this.list = this.list.filter(item => {

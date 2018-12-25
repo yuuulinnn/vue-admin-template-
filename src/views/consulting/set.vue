@@ -1,15 +1,17 @@
 <template>
 	<div class="container">
-		<consulting-list ref="articleList"></consulting-list>
+		<el-row :gutter="20">
+			<set-mail ref="articleList"></set-mail>
+		</el-row>
 	</div>
 </template>
 
 <script>
-	import consultingList from './formlist/list' //引入列表组件
+	import setMail from './set/set_mail' //引入邮件组件
 	export default {
 		name: 'List',
 		components: {
-			consultingList //引入文章列表组件
+			setMail //引入文章列表组件
 		}
 	}
 </script>

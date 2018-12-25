@@ -48,14 +48,21 @@ export const constantRouterMap = [
 	children: [
 		{ path: 'index', component: ()=>import('@/views/consulting/index'), name: 'List', meta: { title: 'List' }},
 		{
-			path: 'detail/:id(\\d+)',
-			component: () => import('@/views/consulting/detail'),
+			path: 'list/detail/:id(\\d+)',
+			component: () => import('@/views/consulting/formlist/detail'),
 			name: 'Detail',
 			meta: { title: 'Detail', noCache: true },
 			hidden: true
 		},
-		{ path: 'recyclebin', component: ()=>import('@/views/consulting/recyclebin'), name: 'RecycleBin', meta: { title: 'recyclebin' }},
-		{ path: 'forwarding', component: ()=>import('@/views/consulting/forwarding'), name: 'forwarding', meta: { title: 'forwarding' }}
+		{
+			path: 'recycle/detail/:id(\\d+)',
+			component: () => import('@/views/consulting/formlist/detail'),
+			name: 'recycleDetail',
+			meta: { title: 'Detail', noCache: true },
+			hidden: true
+		},
+		{ path: 'recycle', component: ()=>import('@/views/consulting/recycle'), name: 'Recycle', meta: { title: 'Recycle' }},
+		{ path: 'set', component: ()=>import('@/views/consulting/set'), name: 'Set', meta: { title: 'Set' }}
 	]
   },
   {

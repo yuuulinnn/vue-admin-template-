@@ -4,7 +4,7 @@
 			<sticky class="sub-navbar">
 				<div class="top-bar">
 						<el-button type="primary" size="small">
-							<router-link :to="'/consulting/index'" class="link-type">
+							<router-link :to="recycle?'/consulting/recycle':'/consulting/index'" class="link-type">
 								<i class="fa fa-list"></i>목록
 							</router-link>
 						</el-button>
@@ -84,6 +84,7 @@
 				formData: [],
 				files: [],
 				loading: true,
+				recycle:'',
 			}
 		},
 		computed:{
@@ -92,6 +93,11 @@
 			}
 		},
 		created() {
+			if(this.$route.name === "recycleDetail"){
+				this.recycle = true
+			}else{
+				this.recycle = false
+			}
 			const id = this.$route.params && this.$route.params.id
 			this.fetchData(id)
 		},
@@ -100,24 +106,26 @@
 				this.loading = true
 				getForm(id).then(response => {
 					this.formData = response.data
-					if (response.data.files.length > 0) {
-						for (let i = 0; i < response.data.files.length; i++) {
-							let fileName = response.data.files[i].lastIndexOf("/")
-							this.files.push({
-								name: response.data.files[i].substring(fileName+1),
-								url: response.data.files[i]
-							})
-						}
-					}
+					this.files = response.files
+					
 					this.loading = false
 				}).catch(err => {
 					console.log(err)
 				})
 			},
 			submitForm() {
-				
 				this.loading = true
-				updForm(this.formData).then(valid => {
+				let data = {
+					"id": this.formData.id,
+					"cat_id": this.formData.cat_id,
+					"author": this.formData.author,
+					"email": this.formData.email,
+					"phone": this.formData.phone,
+					"title": this.formData.title,
+					"content": this.formData.content,
+					"remark": this.formData.remark
+				}
+				updForm(data).then(valid => {
 					if (valid) {
 						this.loading = false
 						this.$notify({
@@ -133,20 +141,22 @@
 				})
 			},
 			handleDelete() {
-				this.$confirm('이 정보를 삭제하시겠습니까?', '팁스', {
+				const deleteMessage = this.recycle ? "회복할 수 없는 조작입니다!" : "선택된 정보를 삭제 하시겠습니까?"
+				this.$confirm(deleteMessage, '팁스', {
 					confirmButtonText: '예',
 					cancelButtonText: '아니요',
 					type: 'warning'
 					}).then(() => {
 						var data = {
-							"id":this.formData.id,
-							"type":"delete"
+							"id":[this.formData.id],
+							"type":this.recycle ?"delete":"remove"
 						};
 						this.loading = true
+						let listLink = this.recycle?'/consulting/recycle':'/consulting/index'
 						batForm(data).then(valid => {
 							if (valid) {
 								this.loading = false
-								this.$router.push({ path: '/consulting/index' })
+								this.$router.push({ path: listLink })
 							} else {
 								this.loading = false
 								console.log('error submit!!')
@@ -254,7 +264,6 @@
 					text-align: center;
 					list-style: none;
 					background-color: #fff;
-					background-image: url(../../assets/images/file_default.png);
 					.download{
 						position: relative;
 						width: 200px;

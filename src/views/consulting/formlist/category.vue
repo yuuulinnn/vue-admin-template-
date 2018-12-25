@@ -15,7 +15,7 @@
 				<ul class="list">
 					<li v-for="(item,index) in category" :class="{ active:item.active }" 
 					:key="item.id" @click="changeCategory(item.id,item.name,index)">
-						<i class="fa fa-circle fa-lg" :style="{color:item.color}"></i>
+						<i :style="{background:item.color}"></i>
 						<span>{{item.name}}</span>
 						<em>({{item.count}})</em>
 					</li>
@@ -78,6 +78,7 @@
 						this.$set(this.category[i], 'active', false)  //追加分类点击状态
 						this.category[0].count += response.data[i].count ;
 					}
+					this.category[0].active = true
 					this.loading = false
 				})
 			}
@@ -146,40 +147,54 @@
 						font-style: normal;
 					}
 					i {
+						width: 10px;
+						height: 10px;
+						margin-left: 5px;
+						display: inline-block;
+						border-radius: 5px;
 						padding-right: 4px;
 						font-size: 0.8em;
 						color: #404a54;
 					}
 				}
+				.active{
+					i {
+						width: 20px;
+						margin-left: -5px;
+					}
+					span {
+						font-weight: bold;
+					}
+				} 
 				li:nth-child(1) i{
-					color: #404a54;
+					background: #404a54;
 				}
 				li:nth-child(2) i{
-					color: #20a0ff;
+					background: #20a0ff;
 				}
 				li:nth-child(3) i{
-					color: #13ce66;
+					background: #13ce66;
 				}
 				li:nth-child(4) i{
-					color: #f7ba2a;
+					background: #f7ba2a;
 				}
 				li:nth-child(5) i{
-					color: #ff4949;
+					background: #ff4949;
 				}
 				li:nth-child(6) i{
-					color: #ff679b;
+					background: #ff679b;
 				}
 				li:nth-child(7) i{
-					color: #f18855;
+					background: #f18855;
 				}
 				li:nth-child(8) i{
-					color: #404a54;
+					background: #404a54;
 				}
 				li:nth-child(9) i{
-					color: #404a54;
+					background: #404a54;
 				}
 				li:nth-child(10) i{
-					color: #404a54;
+					background: #404a54;
 				}
 				li:hover span {
 					color: #409EFF;

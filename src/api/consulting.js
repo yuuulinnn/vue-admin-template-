@@ -3,7 +3,7 @@ import request from '@/utils/request'
 //form
 export function getFormList(query) {
   return request({
-    url: '/form/list',
+    url: '/form/lists',
     method: 'get',
     params: query
   })
@@ -41,54 +41,15 @@ export function updForm(data) {
   })
 }
 
-//filter
-export function getFilter(query) {
-  return request({
-    url: '/form/filter',
-    method: 'get',
-    params: query
-  })
-}
 
 
-//recycle
-export function getRecycleList(query) {
-  return request({
-    url: '/form/recycle/list',
-    method: 'get',
-    params: query
-  })
-}
 
-export function getRecycleForm(id) {
-  return request({
-    url: '/form/recycle/',
-    method: 'get',
-    params: { id }
-  })
-}
-
-export function delRecycle(data) {
-  return request({
-    url: '/form/recycle/del',
-    method: 'post',
-    data
-  })
-}
-
-export function reForm(data) {
-  return request({
-    url: '/form/recycle/re',
-    method: 'post',
-    data
-  })
-}
 
 //category
 
 export function getCatList(query) {
   return request({
-    url: '/form/cat/list',
+    url: '/form/cat/lists',
     method: 'get',
     params: query
   })
@@ -123,7 +84,7 @@ export function addCat(data) {
 //mail
 export function getMailList(query) {
   return request({
-    url: '/form/mail/list',
+    url: '/form/mail/lists',
     method: 'get',
     params: query
   })
@@ -131,7 +92,7 @@ export function getMailList(query) {
 
 export function updMail(data) {
   return request({
-    url: '/form/mail/list',
+    url: '/form/mail/upd',
     method: 'post',
     data
   })
@@ -139,7 +100,7 @@ export function updMail(data) {
 
 export function delMail(data) {
   return request({
-    url: '/form/mail/list',
+    url: '/form/mail/del',
     method: 'post',
     data
   })
