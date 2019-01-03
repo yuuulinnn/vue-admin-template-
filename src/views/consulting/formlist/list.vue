@@ -27,7 +27,6 @@
 					</div>
 
 					<el-table :data="list" :show-header="false" style="width: 100%">
-
 						<el-table-column width="40px">
 							<template slot-scope="scope">
 								<el-checkbox-group v-model="checked" @change="handleCheckedChange">
