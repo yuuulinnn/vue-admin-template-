@@ -32,23 +32,29 @@ npm run build
 npm run build --report
 ```
 
-## 状态码
-| 代码        | 描述   | Description |
-| --------   | ----- | -----|
-| 200        | 正常    |   |
-| 301        | 用户不存在 | No User |
-| 302        | 密码错误 | Password Error |
-| 303        | 未知错误 | Unknown error Try again later. |
-| 304        | 账户已登出 | The account has already been logged out |
+##### 状态码
+| 代码        | 描述                | Description |
+| --------   | ----------           | ------------|
+| 200        | 正常                 |             |
+| 301        | 用户不存在           | No User |
+| 302        | 密码错误             | Password Error |
+| 303        | 未知错误             | Unknown error Try again later. |
+| 304        | 账户已登出           | The account has already been logged out |
 | 305        | 用户名与Token 不匹配 | The name does not match the token. Please check the data. |
-| 306        | 登陆超时     | Login timeout |
-| 401        | 非法的token  | Invalid Token  |  
-| 402        | 其他客户端登录了 | The other clients have already logged in. |
-| 403        | token过期    | Token expired.  |
-| 405        | 没有查询数据  | No query results.|
-| 501        | 没有数据     | No Post/Get Data  |
-| 502        | 没有此接口   | No Api |
-| 602        | 文件上传异常，请检查   | File upload exception, please check |
+| 306        | 登录超时             | Login timeout. |
+| 307        | 没有文件             | No file. | 
+| 401        | 非法的token          | Invalid Token  | 
+| 402        | 其他客户端登录了     | The other clients have already logged in. |
+| 403        | token过期           | Token expired.  |
+| 405        | 没有查询结果         | No query results |
+| 406        | 没有登录             | 没有登录 | 
+| 501        | 没有数据             | No Post/Get Data  |
+| 502        | 没有此接口           | No Api |
+| 503        | 数据格式错误         | Data method error! |
+| 504	     | 缺少必要参数         | Missing required parameters! |
+| 602        | 文件上传失败         | File upload exception, please check! |
+| 901        | 没有权限            | No Permission! |
+| 902        | 没有权限记录，联系管理员 | No permission record, please contact Api administrator! |
 
 
 
