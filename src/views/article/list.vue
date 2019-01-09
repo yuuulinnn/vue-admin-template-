@@ -35,27 +35,9 @@
 							</template>
 						</el-table-column>
 
-						<el-table-column width="30px" align="center">
-							<template slot-scope="scope">
-								<i class="fa" :class="[scope.row.important ? 'fa-star' : 'fa-star-o']" @click="handleImportant(scope.row.id,scope.row.important?false:true)"></i>
-							</template>
-						</el-table-column>
-
-						<el-table-column width="30px" align="center">
-							<template slot-scope="scope">
-								<i class="fa" :class="[scope.row.unread ? 'fa-envelope-o' : 'fa-envelope-open-o']" @click="handleRead(scope.row.id,scope.row.unread?false:true)"></i>
-							</template>
-						</el-table-column>
-
-						<el-table-column align="left" width="70px" show-overflow-tooltip>
-							<template slot-scope="scope">
-								<span class="author">{{ scope.row.author }}</span>
-							</template>
-						</el-table-column>
-
 						<el-table-column align="center" width="30px">
 							<template slot-scope="scope">
-								<i class="fa" v-bind:class="{ 'fa-paperclip': scope.row.file }"></i>
+								<i class="fa" v-bind:class="{ 'fa-bullhorn': scope.row.top }"></i>
 							</template>
 						</el-table-column>
 
@@ -68,10 +50,10 @@
 								<i class="fa" v-bind:class="{ 'fa-tags': scope.row.remark }"></i>
 							</template>
 						</el-table-column>
-
+						
 						<el-table-column width="130px" align="center">
 							<template slot-scope="scope">
-								<span>{{ scope.row.send_time }}</span>
+								<span>{{ scope.row.time }}</span>
 							</template>
 						</el-table-column>
 
@@ -107,13 +89,12 @@
 <script>
 	import categoryList from './category' //引入分类组件
 	import {
-		getFormList,
-		getFilter,
-		batForm,
-		updForm,
-	} from '@/api/consulting'
+		getArticleList,
+		batchArticle,
+		updataArticle,
+	} from '@/api/article'
 	export default {
-		name: 'formList',
+		name: 'articleList',
 		components: {
 			categoryList, //引入吸附顶部组件
 		},
@@ -153,9 +134,9 @@
 		},
 		created() {
 			if(this.$route.name === "Recycle"){
-				this.deailLink = '/consulting/recycle/detail/'
+				this.deailLink = '/article/recycle/detail/'
 			}else{
-				this.deailLink = '/consulting/list/detail/'
+				this.deailLink = '/article/list/detail/'
 			}
 			this.getList()
 		},
@@ -190,7 +171,7 @@
 				this.checkAll = false
 				this.checked = []
 				this.isIndeterminate = false
-				getFormList(this.listQuery).then(response => {
+				getArticleList(this.listQuery).then(response => {
 					this.changeCategory.searchKeyword = ''
 					this.changeCategory.searchStartTime = ''
 					this.changeCategory.searchEndTime = ''

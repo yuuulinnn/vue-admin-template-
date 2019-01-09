@@ -4,7 +4,7 @@
 			<sticky class="sub-navbar">
 				<div class="top-bar">
 					<el-button type="primary" size="small">
-						<router-link :to="recycle?'/consulting/recycle':'/consulting/index'" class="link-type">
+						<router-link :to="recycle?'/article/recycle':'/article/index'" class="link-type">
 							<i class="fa fa-list"></i>목록
 						</router-link>
 					</el-button>
@@ -183,7 +183,7 @@
 						"type": this.recycle ? "delete" : "remove"
 					};
 					this.loading = true
-					let listLink = this.recycle ? '/consulting/recycle' : '/consulting/index'
+					let listLink = this.recycle ? '/article/recycle' : '/article/index'
 					batForm(data).then(valid => {
 						if (valid) {
 							this.loading = false

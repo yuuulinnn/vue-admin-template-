@@ -39,7 +39,7 @@
 				<div class="content-file"  v-loading="fileloading">
 					<div class="title">
 						<i class="fa fa-paperclip"></i>첨부파일
-						<span>({{formData.files.length}})</span>
+						<span>()</span>
 					</div>
 					<ul>
 						<el-upload
@@ -47,18 +47,20 @@
 							list-type="picture-card"
 							:headers = "token"
 							:data = "{'type':'form'}"
-							:show-file-list="true"
-							:file-list="formData.files"
+							:file-list="filesList"
 							:on-success="fileUpdataSuccess"
-							
 							:limit="3"
 							:on-exceed="handleExceed"
-							:before-remove="fileDelete"
-							:before-upload="beforeAvatarUpload"
+							:before-remove="beforeFileDelete"
+							:before-upload="beforeUpload"
 							:on-preview="handlePictureCardPreview">
 							<i class="el-icon-plus"></i>
 						</el-upload>
 						<el-dialog :visible.sync="dialogVisible">
+							<div class="upload-filelist">
+								<span class="title">{{fileName}}</span>
+								<a class="btn-download" :href="dialogImageUrl" :download="fileName">Download</a>
+							</div>
 							<img width="100%" :src="dialogImageUrl" alt="">
 						</el-dialog>
 					</ul>
@@ -97,12 +99,14 @@
 		data() {
 			return {
 				formData: [],
+				filesList: [],
 				sendForm: [],
 				token: {"X-Token":getToken()},
 				loading: true,
 				recycle: '',
 				fileloading: false,
 				dialogImageUrl: '',
+				fileName:'',
 				dialogVisible: false,
 				fileApiUri:process.env.BASE_API + '/files/upd'
 			}
@@ -117,8 +121,7 @@
 			this.fetchData(id)
 		},
 		methods: {
-			beforeAvatarUpload(file) {
-				
+			beforeUpload(file) {
 				const rightType = function(type){
 					let fileType = [
 						"image/jpeg",
@@ -131,33 +134,32 @@
 						"application/vnd.openxmlformats-officedocument.presentationml.presentation",
 						"application/pdf",
 						"application/haansofthwp",
+						"text/plain",
 					]
 					for(let i=0;i<fileType.length;i++){
-						console.log(fileType[i])
 						if(fileType[i] === type) return false
 					};
 					return true
 				}
 				const isJPG = rightType(file.type)?false:true;
 				const isLt5M = file.size / 1024 / 1024 < 5;
-				
 				if (!isJPG) {
-				  this.$message.error('.jpg/.png/.gif/.zip/.rar/.doc/.pptx/.xlsx/.pdf/.hwp 파일 업로드 가능합니다');
+				  this.$message.error('.jpg/.png/.gif/.zip/.rar/.doc/.pptx/.xlsx/.pdf/.txt/.hwp 파일 업로드 가능합니다');
 				}
 				if (!isLt5M) {
 				  this.$message.error('최대 5MB의 파일용량 업로드가능합니다!');
 				}
-				
 				return isJPG && isLt5M
 			},
 			handleExceed(files, fileList) {
 				this.$message.warning(`최대 3개의 파일 업로드가능합니다`);
 			},
 			fileUpdataSuccess(response, file, fileList){
-				this.formData.files.push(response.data)
+				this.filesList.push(response.data)
 				this.submitForm();
 			},
-			fileDelete(file, fileList){
+			beforeFileDelete(file, fileList){
+				if(file.raw !== undefined) return true //跳过临时文件
 				return new Promise((resolve,reject)=>{
 					this.$confirm('회복할 수 없는 조작입니다!', '팁스', {
 						confirmButtonText: '삭제',
@@ -165,14 +167,15 @@
 						type: 'warning'
 					}).then(() => {
 						let del = {
-							"id": [file.id]
+							"id": [file.id],
+							"type":"form"
 						}
 						this.fileloading = true;
 						delFile(del).then(valid => {
 							if (valid) {
 								resolve();
 								this.fileloading = false;
-								this.beforeFileDelete(file.id);
+								this.fileDelete(file.id);
 							} else {
 								this.fileloading = false
 								console.log('error submit!!')
@@ -185,11 +188,11 @@
 							message: '취소되엿습니다'
 						});
 						reject()
-					});		
+					});
 				})
 			},
-			beforeFileDelete(id){
-				this.formData.files = this.formData.files.filter(item => {
+			fileDelete(id){
+				this.filesList = this.filesList.filter(item => {
 					if (item.id === id) return false
 					return true
 				})
@@ -197,16 +200,17 @@
 			},
 			handlePictureCardPreview(file) {
 				this.dialogImageUrl = file.url;
+				this.fileName = file.name;
 				this.dialogVisible = true;
 			},
 			fetchData(id) {
 				this.loading = true
 				getForm(id).then(response => {
-					this.formData = response.data
-
-					this.loading = false
+					this.formData = response.data;
+					this.filesList = response.files;
+					this.loading = false;
 				}).catch(err => {
-					console.log(err)
+					console.log(err);
 				})
 			},
 			saveForm(){
@@ -223,7 +227,7 @@
 					"title": this.formData.title,
 					"content": this.formData.content,
 					"remarks": this.formData.remarks,
-					"files": this.formData.files,
+					"files": this.filesList,
 				}
 				updForm(data).then(valid => {
 					if (valid) {
@@ -278,7 +282,28 @@
 		}
 	}
 </script>
-
+<style rel="stylesheet/scss" lang="scss">
+	.el-dialog__body{
+		padding-top: 0px;
+	}
+	.el-dialog__header{
+		padding-top: 0px;
+	}
+	.upload-filelist {
+		height: 50px;
+		line-height: 37px;
+		.title{
+			font-size: 18px;
+		}
+		.btn-download {
+			background: #20A0FF;
+			color: #fff;
+			padding: 10px 15px;
+			border-radius: 4px;
+			margin-left: 15px;
+		}
+	}
+</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 	@import "src/styles/mixin.scss";
 

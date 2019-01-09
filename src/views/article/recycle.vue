@@ -1,15 +1,15 @@
 <template>
 	<div class="container">
-		<consulting-list ref="articleList"></consulting-list>
+		<article-list ref="articleList"></article-list>
 	</div>
 </template>
 
 <script>
-	import consultingList from './formlist/list' //引入列表组件
+	import articleList from './list' //引入列表组件
 	export default {
 		name: 'List',
 		components: {
-			consultingList //引入文章列表组件
+			articleList //引入文章列表组件
 		}
 	}
 </script>

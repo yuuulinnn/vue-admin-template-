@@ -1,25 +1,15 @@
 import request from '@/utils/request'
 
-export function fetchCategory(query) {
+//form
+export function getArticleList(query) {
   return request({
-    url: '/article/category',
+    url: '/article/lists',
     method: 'get',
     params: query
   })
 }
 
-export function fetchList(query) {
-  return request({
-    url: '/article/list',
-    method: 'get',
-    params: query
-  })
-}
-
-
-
-
-export function fetchArticle(id) {
+export function getArticleDetail(id) {
   return request({
     url: '/article/detail',
     method: 'get',
@@ -27,26 +17,52 @@ export function fetchArticle(id) {
   })
 }
 
-export function fetchPv(pv) {
+
+
+export function batchArticle(data) {
   return request({
-    url: '/article/pv',
+    url: '/article/bat',
+    method: 'post',
+    data
+  })
+}
+
+export function updArticle(data) {
+  return request({
+    url: '/article/upd',
+    method: 'post',
+    data
+  })
+}
+
+
+
+
+
+//category
+
+export function getCategoryList(query) {
+  return request({
+    url: '/article/cat_lists',
     method: 'get',
-    params: { pv }
+    params: query
   })
 }
 
-export function createArticle(data) {
+export function updataCategory(data) {
   return request({
-    url: '/article/create',
+    url: '/article/cat_upd',
     method: 'post',
     data
   })
 }
 
-export function updateArticle(data) {
+export function deleteCategory(data) {
   return request({
-    url: '/article/update',
+    url: '/article/cat_del',
     method: 'post',
     data
   })
 }
+
+

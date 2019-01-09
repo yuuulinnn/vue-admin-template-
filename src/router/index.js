@@ -65,6 +65,35 @@ export const constantRouterMap = [
 		{ path: 'set', component: ()=>import('@/views/consulting/set'), name: 'Set', meta: { title: 'Set' }}
 	]
   },
+ {
+	path: '/article',
+	component: Layout,
+	redirect: '/article/index',
+	name: 'article',
+	meta: {
+		title: 'Article',
+		icon: 'article'
+	},
+	children: [
+		{ path: 'index', component: ()=>import('@/views/article/index'), name: 'List', meta: { title: 'List' }},
+		{
+			path: 'list/detail/:id(\\d+)',
+			component: () => import('@/views/article/detail'),
+			name: 'Detail',
+			meta: { title: 'Detail', noCache: true },
+			hidden: true
+		},
+		{
+			path: 'recycle/detail/:id(\\d+)',
+			component: () => import('@/views/article/detail'),
+			name: 'recycleDetail',
+			meta: { title: 'Detail', noCache: true },
+			hidden: true
+		},
+		{ path: 'recycle', component: ()=>import('@/views/article/recycle'), name: 'Recycle', meta: { title: 'Recycle' }},
+		{ path: 'set', component: ()=>import('@/views/article/set'), name: 'Set', meta: { title: 'Set' }}
+	]
+  },
   {
     path: 'external-link',
     component: Layout,
