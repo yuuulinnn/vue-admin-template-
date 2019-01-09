@@ -11,7 +11,7 @@
 					<el-button style="margin-left: 10px;" type="primary" size="small" @click="printPage()"><i class="fa fa-print"></i>프린트
 					</el-button>
 					<el-button type="warning" size="small" @click="handleDelete"><i class="fa fa-trash-o"></i>삭제</el-button>
-					<el-button style="margin-left: 10px;" size="small" type="success" @click="saveForm"><i class="fa fa-floppy-o"></i>저장
+					<el-button style="margin-left: 10px;" size="small" type="success" @click="submitForm"><i class="fa fa-floppy-o"></i>저장
 					</el-button>
 				</div>
 			</sticky>
@@ -36,31 +36,37 @@
 				<div class="content-text">
 					{{formData.content}}
 				</div>
-				<div class="content-file"  v-loading="fileloading">
+				<div class="content-file" v-if="filesLength > 0" v-loading="fileloading">
 					<div class="title">
 						<i class="fa fa-paperclip"></i>첨부파일
-						<span>({{formData.files.length}})</span>
+						<span>({{filesLength}})</span>
 					</div>
 					<ul>
+						<li v-for="file in files" :key="file.name">
+							<div class="download" :style="{ backgroundImage:'url(' + file.url + ')'}">
+								<a :href="file.url" :download="file.name">
+									<i class="fa fa-download"></i>
+								</a>
+								<a @click="deletFile(file.id)">
+									<i class="fa fa-trash-o"></i>
+								</a>
+								<p>{{file.name}}</p>
+							</div>
+						</li>
+						<div class="clearfix"></div>
+						
 						<el-upload
-							:action="fileApiUri"
+							action="https://jsonplaceholder.typicode.com/posts/"
 							list-type="picture-card"
-							:headers = "token"
-							:data = "{'type':'form'}"
-							:show-file-list="true"
-							:file-list="formData.files"
-							:on-success="fileUpdataSuccess"
-							
-							:limit="3"
-							:on-exceed="handleExceed"
-							:before-remove="fileDelete"
-							:before-upload="beforeAvatarUpload"
-							:on-preview="handlePictureCardPreview">
+							:on-preview="handlePictureCardPreview"
+							:on-remove="handleRemove">
 							<i class="el-icon-plus"></i>
 						</el-upload>
 						<el-dialog :visible.sync="dialogVisible">
 							<img width="100%" :src="dialogImageUrl" alt="">
 						</el-dialog>
+
+
 					</ul>
 				</div>
 				<div class="remark-edit">
@@ -84,7 +90,6 @@
 		batForm,
 		updForm
 	} from '@/api/consulting'
-	import { getToken } from '@/utils/auth'
 	import {
 		updFile,
 		delFile
@@ -97,14 +102,17 @@
 		data() {
 			return {
 				formData: [],
-				sendForm: [],
-				token: {"X-Token":getToken()},
+				files: [],
 				loading: true,
 				recycle: '',
 				fileloading: false,
 				dialogImageUrl: '',
-				dialogVisible: false,
-				fileApiUri:process.env.BASE_API + '/files/upd'
+				dialogVisible: false
+			}
+		},
+		computed: {
+			filesLength: function() {
+				return this.files.length
 			}
 		},
 		created() {
@@ -117,83 +125,8 @@
 			this.fetchData(id)
 		},
 		methods: {
-			beforeAvatarUpload(file) {
-				
-				const rightType = function(type){
-					let fileType = [
-						"image/jpeg",
-						"image/png",
-						"image/gif",
-						"application/msword",
-						"application/zip",
-						"application/rar",
-						"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-						"application/vnd.openxmlformats-officedocument.presentationml.presentation",
-						"application/pdf",
-						"application/haansofthwp",
-					]
-					for(let i=0;i<fileType.length;i++){
-						console.log(fileType[i])
-						if(fileType[i] === type) return false
-					};
-					return true
-				}
-				const isJPG = rightType(file.type)?false:true;
-				const isLt5M = file.size / 1024 / 1024 < 5;
-				
-				if (!isJPG) {
-				  this.$message.error('.jpg/.png/.gif/.zip/.rar/.doc/.pptx/.xlsx/.pdf/.hwp 파일 업로드 가능합니다');
-				}
-				if (!isLt5M) {
-				  this.$message.error('최대 5MB의 파일용량 업로드가능합니다!');
-				}
-				
-				return isJPG && isLt5M
-			},
-			handleExceed(files, fileList) {
-				this.$message.warning(`최대 3개의 파일 업로드가능합니다`);
-			},
-			fileUpdataSuccess(response, file, fileList){
-				this.formData.files.push(response.data)
-				this.submitForm();
-			},
-			fileDelete(file, fileList){
-				return new Promise((resolve,reject)=>{
-					this.$confirm('회복할 수 없는 조작입니다!', '팁스', {
-						confirmButtonText: '삭제',
-						cancelButtonText: '취소',
-						type: 'warning'
-					}).then(() => {
-						let del = {
-							"id": [file.id]
-						}
-						this.fileloading = true;
-						delFile(del).then(valid => {
-							if (valid) {
-								resolve();
-								this.fileloading = false;
-								this.beforeFileDelete(file.id);
-							} else {
-								this.fileloading = false
-								console.log('error submit!!')
-								return false
-							}
-						})
-					}).catch(() => {
-						this.$message({
-							type: 'info',
-							message: '취소되엿습니다'
-						});
-						reject()
-					});		
-				})
-			},
-			beforeFileDelete(id){
-				this.formData.files = this.formData.files.filter(item => {
-					if (item.id === id) return false
-					return true
-				})
-				this.submitForm();
+			handleRemove(file, fileList) {
+				console.log(file, fileList);
 			},
 			handlePictureCardPreview(file) {
 				this.dialogImageUrl = file.url;
@@ -203,17 +136,15 @@
 				this.loading = true
 				getForm(id).then(response => {
 					this.formData = response.data
+					this.files = response.files
 
 					this.loading = false
 				}).catch(err => {
 					console.log(err)
 				})
 			},
-			saveForm(){
-				this.loading = true;
-				this.submitForm();
-			},
 			submitForm() {
+				this.loading = true
 				let data = {
 					"id": this.formData.id,
 					"cat_id": this.formData.cat_id,
@@ -223,11 +154,11 @@
 					"title": this.formData.title,
 					"content": this.formData.content,
 					"remarks": this.formData.remarks,
-					"files": this.formData.files,
+					"files": this.files
 				}
 				updForm(data).then(valid => {
 					if (valid) {
-						this.loading = false;
+						this.loading = false
 						this.$notify({
 							title: '성공',
 							message: '저장되습니다',
@@ -238,7 +169,7 @@
 						console.log('error submit!!')
 						return false
 					}
-				});
+				})
 			},
 			handleDelete() {
 				const deleteMessage = this.recycle ? "회복할 수 없는 조작입니다!" : "선택된 정보를 삭제 하시겠습니까?"
@@ -261,6 +192,40 @@
 							})
 						} else {
 							this.loading = false
+							console.log('error submit!!')
+							return false
+						}
+					})
+				}).catch(() => {
+					this.$message({
+						type: 'info',
+						message: '취소되엿습니다'
+					});
+				});
+			},
+			deletFile(id) {
+				this.$confirm('회복할 수 없는 조작입니다!', '팁스', {
+					confirmButtonText: '삭제',
+					cancelButtonText: '취소',
+					type: 'warning'
+				}).then(() => {
+					let data = {
+						"id": [id]
+					}
+					this.fileloading = true
+					delFile(data).then(valid => {
+						if (valid) {
+							this.files = this.files.filter(item => {
+								if (item.id === id) return false
+								return true
+							})
+							this.fileloading = false
+							this.$message({
+								type: 'success',
+								message: '삭제되엿습니다'
+							});
+						} else {
+							this.fileloading = false
 							console.log('error submit!!')
 							return false
 						}
