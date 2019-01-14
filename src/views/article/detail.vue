@@ -1,95 +1,111 @@
 <template>
-	<div class="createPost-container" v-loading="loading">
-		<el-form class="form-container">
-			<sticky class="sub-navbar">
-				<div class="top-bar">
-					<el-button type="primary" size="small">
-						<router-link :to="recycle?'/article/recycle':'/article/index'" class="link-type">
-							<i class="fa fa-list"></i>목록
-						</router-link>
-					</el-button>
-					<el-button style="margin-left: 10px;" type="primary" size="small" @click="printPage()"><i class="fa fa-print"></i>프린트
-					</el-button>
-					<el-button type="warning" size="small" @click="handleDelete"><i class="fa fa-trash-o"></i>삭제</el-button>
-					<el-button style="margin-left: 10px;" size="small" type="success" @click="submitForm"><i class="fa fa-floppy-o"></i>저장
-					</el-button>
-				</div>
-			</sticky>
-			<div id="printJS-form">
-
-			</div>
-			<div class="message-content">
-				<div class="head">
-					<div class="title">
-						<span>[{{formData.cat_name}}]</span>{{formData.title}}</div>
-					<div class="author">
-						<span>
-							<i class="fa fa-user-circle-o"></i>{{formData.author}}</span>
-						<span>
-							<i class="fa fa-envelope"></i>{{formData.email}}</span>
-						<span>
-							<i class="fa fa-phone-square"></i>{{formData.phone}}</span>
-						<span>
-							<i class="fa fa-clock-o"></i>{{formData.send_time}}</span>
-					</div>
-				</div>
-				<div class="content-text">
-					{{formData.content}}
-				</div>
-				<div class="content-file" v-if="filesLength > 0" v-loading="fileloading">
-					<div class="title">
-						<i class="fa fa-paperclip"></i>첨부파일
-						<span>({{filesLength}})</span>
-					</div>
-					<ul>
-						<li v-for="file in files" :key="file.name">
-							<div class="download" :style="{ backgroundImage:'url(' + file.url + ')'}">
-								<a :href="file.url" :download="file.name">
-									<i class="fa fa-download"></i>
-								</a>
-								<a @click="deletFile(file.id)">
-									<i class="fa fa-trash-o"></i>
-								</a>
-								<p>{{file.name}}</p>
+	<el-row>
+		<el-col :span="20">
+			<div class="grid-content bg-purple article-detail">
+				<div class="createPost-container" v-loading="loading">
+					<el-form class="form-container">
+						<sticky class="sub-navbar">
+							<div class="top-bar">
+								<el-button type="primary" size="small">
+									<router-link :to="recycle?'/consulting/recycle':'/consulting/index'" class="link-type">
+										<i class="fa fa-list"></i>목록
+									</router-link>
+								</el-button>
+								<el-button style="margin-left: 10px;" type="primary" size="small" @click="printPage()"><i class="fa fa-print"></i>프린트
+								</el-button>
+								<el-button type="warning" size="small" @click="handleDelete"><i class="fa fa-trash-o"></i>삭제</el-button>
+								<el-button style="margin-left: 10px;" size="small" type="success" @click="saveForm"><i class="fa fa-floppy-o"></i>저장
+								</el-button>
 							</div>
-						</li>
-						<div class="clearfix"></div>
-						
-						<el-upload
-							action="https://jsonplaceholder.typicode.com/posts/"
-							list-type="picture-card"
-							:on-preview="handlePictureCardPreview"
-							:on-remove="handleRemove">
-							<i class="el-icon-plus"></i>
-						</el-upload>
-						<el-dialog :visible.sync="dialogVisible">
-							<img width="100%" :src="dialogImageUrl" alt="">
-						</el-dialog>
+						</sticky>
+						<div id="printJS-form">
 
-
-					</ul>
-				</div>
-				<div class="remark-edit">
-					<div class="title">
-						<i class="fa fa-edit"></i>
-						<span>비고</span>
-					</div>
-					<el-input type="textarea" :autosize="{ minRows: 2, maxRows: 20}" placeholder="" v-model="formData.remarks">
-					</el-input>
+						</div>
+						<div class="message-content">
+							<div class="head">
+								<div class="title">
+									<el-input v-model="formData.title" placeholder="제목입력해주십시요" ></el-input>
+								</div>
+								<div class="author">
+									<el-row>
+										<el-col :span="6">
+											카테고리：
+											<el-cascader expand-trigger="hover" :props="props" :options="category" :v-model="selectCategorys"
+											 :show-all-levels="false" :clearable="true" :change-on-select="true" @change="handleChange">
+											</el-cascader>
+										</el-col>
+										<el-col :span="6">
+											<div class="demo-input-suffix pull-left">
+												작성자：
+												<el-input placeholder="이름" v-model="formData.author">
+												</el-input>
+											</div>
+										</el-col>
+										<el-col :span="6">
+											<div class="demo-input-suffix pull-left">
+												작성일：
+												<el-date-picker
+													v-model="formData.time"
+													type="datetime"
+													placeholder="选择日期时间">
+												</el-date-picker>
+											</div>
+										</el-col>
+									</el-row>
+								</div>
+								<div class="thumnail">
+									
+								</div>
+							</div>
+							<div class="content-text">
+								<ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor>
+							</div>
+							<div class="content-file" v-loading="fileloading">
+								<div class="title">
+									<i class="fa fa-paperclip"></i>첨부파일
+									<span>()</span>
+								</div>
+								<ul>
+									<el-upload :action="fileApiUri" list-type="picture-card" :headers="token" :data="{'type':'form'}" :file-list="filesList"
+									 :on-success="fileUpdataSuccess" :limit="3" :on-exceed="handleExceed" :before-remove="beforeFileDelete"
+									 :before-upload="beforeUpload" :on-preview="handlePictureCardPreview">
+										<i class="el-icon-plus"></i>
+									</el-upload>
+									<el-dialog :visible.sync="dialogVisible">
+										<div class="upload-filelist">
+											<span class="title">{{fileName}}</span>
+											<a class="btn-download" :href="dialogImageUrl" :download="fileName">Download</a>
+										</div>
+										<img width="100%" :src="dialogImageUrl" alt="">
+									</el-dialog>
+								</ul>
+							</div>
+						</div>
+					</el-form>
 				</div>
 			</div>
-		</el-form>
-	</div>
+		</el-col>
+		<el-col :span="4">
+			<div class="grid-content bg-purple-light">123123123</div>
+		</el-col>
+	</el-row>
+
 </template>
 
 <script>
 	import print from 'print-js' //打印插件
+	import CKEditor from '@ckeditor/ckeditor5-vue';
+	import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 	import Sticky from '@/components/Sticky' // 粘性header组件
 	import {
-		getForm,
-		batForm,
-		updForm
-	} from '@/api/consulting'
+		getArticleDetail,
+		batchArticle,
+		updataArticle,
+		getCategoryList
+	} from '@/api/article'
+	import {
+		getToken
+	} from '@/utils/auth'
 	import {
 		updFile,
 		delFile
@@ -97,22 +113,36 @@
 	export default {
 		name: 'FormDetail',
 		components: {
-			Sticky
+			Sticky,
+			ckeditor: CKEditor.component
 		},
 		data() {
 			return {
+				editor: ClassicEditor,
+                editorData: '<p>Content of the editor.</p>',
+                editorConfig: {
+                    // The configuration of the editor.
+                },
+				category: [],
+				selectCategorys: [],
+				props: {
+					label: 'name',
+					value: 'id',
+					children: 'sub_cat'
+				},
 				formData: [],
-				files: [],
+				filesList: [],
+				sendForm: [],
+				token: {
+					"X-Token": getToken()
+				},
 				loading: true,
 				recycle: '',
 				fileloading: false,
 				dialogImageUrl: '',
-				dialogVisible: false
-			}
-		},
-		computed: {
-			filesLength: function() {
-				return this.files.length
+				fileName: '',
+				dialogVisible: false,
+				fileApiUri: process.env.BASE_API + '/files/upd'
 			}
 		},
 		created() {
@@ -125,26 +155,114 @@
 			this.fetchData(id)
 		},
 		methods: {
-			handleRemove(file, fileList) {
-				console.log(file, fileList);
+			handleChange(value){
+				this.selectCategorys = value
+			},
+			beforeUpload(file) {
+				const rightType = function(type) {
+					let fileType = [
+						"image/jpeg",
+						"image/png",
+						"image/gif",
+						"application/msword",
+						"application/zip",
+						"application/rar",
+						"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+						"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+						"application/pdf",
+						"application/haansofthwp",
+						"text/plain",
+					]
+					for (let i = 0; i < fileType.length; i++) {
+						if (fileType[i] === type) return false
+					};
+					return true
+				}
+				const isJPG = rightType(file.type) ? false : true;
+				const isLt5M = file.size / 1024 / 1024 < 5;
+				if (!isJPG) {
+					this.$message.error('.jpg/.png/.gif/.zip/.rar/.doc/.pptx/.xlsx/.pdf/.txt/.hwp 파일 업로드 가능합니다');
+				}
+				if (!isLt5M) {
+					this.$message.error('최대 5MB의 파일용량 업로드가능합니다!');
+				}
+				return isJPG && isLt5M
+			},
+			handleExceed(files, fileList) {
+				this.$message.warning(`최대 3개의 파일 업로드가능합니다`);
+			},
+			fileUpdataSuccess(response, file, fileList) {
+				this.filesList.push(response.data)
+				this.submitForm();
+			},
+			beforeFileDelete(file, fileList) {
+				if (file.raw !== undefined) return true //跳过临时文件
+				return new Promise((resolve, reject) => {
+					this.$confirm('회복할 수 없는 조작입니다!', '팁스', {
+						confirmButtonText: '삭제',
+						cancelButtonText: '취소',
+						type: 'warning'
+					}).then(() => {
+						let del = {
+							"id": [file.id],
+							"type": "form"
+						}
+						this.fileloading = true;
+						delFile(del).then(valid => {
+							if (valid) {
+								resolve();
+								this.fileloading = false;
+								this.fileDelete(file.id);
+							} else {
+								this.fileloading = false
+								console.log('error submit!!')
+								return false
+							}
+						})
+					}).catch(() => {
+						this.$message({
+							type: 'info',
+							message: '취소되엿습니다'
+						});
+						reject()
+					});
+				})
+			},
+			fileDelete(id) {
+				this.filesList = this.filesList.filter(item => {
+					if (item.id === id) return false
+					return true
+				})
+				this.submitForm();
 			},
 			handlePictureCardPreview(file) {
 				this.dialogImageUrl = file.url;
+				this.fileName = file.name;
 				this.dialogVisible = true;
 			},
 			fetchData(id) {
 				this.loading = true
-				getForm(id).then(response => {
-					this.formData = response.data
-					this.files = response.files
-
-					this.loading = false
+				getArticleDetail(id).then(response => {
+					this.formData = response.data;
+					this.filesList = response.files;
+					let data = {
+						"deleted": this.$route.name === "recycleDetail"
+					};
+					getCategoryList(data).then(response => {
+						this.category = response.data
+						this.loading = false
+					})
 				}).catch(err => {
-					console.log(err)
+					console.log(err);
 				})
+
+
+			},
+			saveForm() {
+				this.loading = true;
+				this.submitForm();
 			},
 			submitForm() {
-				this.loading = true
 				let data = {
 					"id": this.formData.id,
 					"cat_id": this.formData.cat_id,
@@ -154,11 +272,11 @@
 					"title": this.formData.title,
 					"content": this.formData.content,
 					"remarks": this.formData.remarks,
-					"files": this.files
+					"files": this.filesList,
 				}
-				updForm(data).then(valid => {
+				updataArticle(data).then(valid => {
 					if (valid) {
-						this.loading = false
+						this.loading = false;
 						this.$notify({
 							title: '성공',
 							message: '저장되습니다',
@@ -169,7 +287,7 @@
 						console.log('error submit!!')
 						return false
 					}
-				})
+				});
 			},
 			handleDelete() {
 				const deleteMessage = this.recycle ? "회복할 수 없는 조작입니다!" : "선택된 정보를 삭제 하시겠습니까?"
@@ -183,8 +301,8 @@
 						"type": this.recycle ? "delete" : "remove"
 					};
 					this.loading = true
-					let listLink = this.recycle ? '/article/recycle' : '/article/index'
-					batForm(data).then(valid => {
+					let listLink = this.recycle ? '/consulting/recycle' : '/consulting/index'
+					batchArticle(data).then(valid => {
 						if (valid) {
 							this.loading = false
 							this.$router.push({
@@ -203,49 +321,81 @@
 					});
 				});
 			},
-			deletFile(id) {
-				this.$confirm('회복할 수 없는 조작입니다!', '팁스', {
-					confirmButtonText: '삭제',
-					cancelButtonText: '취소',
-					type: 'warning'
-				}).then(() => {
-					let data = {
-						"id": [id]
-					}
-					this.fileloading = true
-					delFile(data).then(valid => {
-						if (valid) {
-							this.files = this.files.filter(item => {
-								if (item.id === id) return false
-								return true
-							})
-							this.fileloading = false
-							this.$message({
-								type: 'success',
-								message: '삭제되엿습니다'
-							});
-						} else {
-							this.fileloading = false
-							console.log('error submit!!')
-							return false
-						}
-					})
-				}).catch(() => {
-					this.$message({
-						type: 'info',
-						message: '취소되엿습니다'
-					});
-				});
-			},
 			printPage() {
 				printJS('printJS-form', 'html')
 			}
 		}
 	}
 </script>
+<style rel="stylesheet/scss" lang="scss">
+	.article-detail {
+		.author {
+			.el-input {
+				width: auto;
+			}
+		}
+	}
 
+	.title {
+		.el-input__inner {
+			height: auto;
+		}
+
+		.el-input-group__prepend {
+			border: none;
+			width: 160px;
+			padding: 0px;
+
+			.el-cascader {
+				padding-right: 0px;
+			}
+
+			.el-input__inner {
+				margin-right: 1px;
+				border-right: 0px;
+				border-radius: 4px;
+				border-top-right-radius: 0px;
+				border-bottom-right-radius: 0px;
+			}
+		}
+	}
+
+	.el-dialog__body {
+		padding-top: 0px;
+	}
+
+	.el-dialog__header {
+		padding-top: 0px;
+	}
+
+	.upload-filelist {
+		height: 50px;
+		line-height: 37px;
+
+		.title {
+			font-size: 18px;
+		}
+
+		.btn-download {
+			background: #20A0FF;
+			color: #fff;
+			padding: 10px 15px;
+			border-radius: 4px;
+			margin-left: 15px;
+		}
+	}
+</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 	@import "src/styles/mixin.scss";
+
+	.article-detail {
+
+		.author,
+		.title {
+			padding: 15px 0px 15px 0px;
+			border-bottom: 1px solid #eee;
+		}
+	}
 
 	.sub-navbar {
 		padding-right: 0px;
@@ -284,35 +434,7 @@
 	.message-content {
 		padding: 0px 30px 30px;
 
-		.head {
-			padding: 25px 0px;
-			border-bottom: 1px solid #e7eaec;
 
-			.title {
-				font-size: 18px;
-				color: #000;
-				padding-bottom: 15px;
-				font-weight: 500;
-
-				span {
-					color: #777;
-					padding-right: 10px;
-				}
-			}
-
-			.author {
-				color: #777;
-
-				span {
-					margin-right: 25px;
-
-					i {
-						padding-right: 7px;
-						color: #999;
-					}
-				}
-			}
-		}
 
 		.content-text {
 			padding: 25px 0px;

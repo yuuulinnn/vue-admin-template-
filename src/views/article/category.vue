@@ -2,25 +2,28 @@
 	<sticky>
 		<div class="left-search-bar"  v-loading="loading" >
 			<div class="search">
-				<h4>Search</h4>
+				<h4>Category</h4>
+				<div class="block">
+				  <el-cascader
+					size="small"
+					expand-trigger="hover"
+					:props="props"
+					:options="category"
+					:v-model="selectCategorys"
+					:show-all-levels="false"
+					:clearable="true"
+					:change-on-select="true"
+					@change="handleChange">
+				  </el-cascader>
+				</div>
+				<h4>Keyword</h4>
 				<el-input class="search-category-keyword" placeholder="키워드을 입력해주세요" size="small" v-model="searchKeyword" clearable>
 				</el-input>
-				<el-date-picker class="search-times" v-model="searchTime" size="small" type="daterange" unlink-panels range-separator="-"
-					start-placeholder="" end-placeholder="" :picker-options="searchTimesOption" value-format="yyyy-MM-dd">
+				<h4>Time</h4>
+				<el-date-picker class="search-times" v-model="searchTime" :change="timeChange" size="small" type="daterange" unlink-panels range-separator="-"
+					:picker-options="searchTimesOption" value-format="yyyy-MM-dd">
 				</el-date-picker>
 				<el-button type="info" :loading="false" class="search-btn" @click="search"><i class="fa fa-search"></i>검색</el-button>
-			</div>
-			<div class="category">
-				<h4>Category</h4>
-				<ul class="list">
-					<li v-for="(item,index) in category" :class="{ active:item.active }" 
-					:key="item.id" @click="changeCategory(item.id,item.name,index)">
-						<i :style="{background:item.color}"></i>
-						<span>{{item.name}}</span>
-						<em>({{item.count}})</em>
-					</li>
-					<div class="clearfix"></div>
-				</ul>
 			</div>
 		</div>
 	</sticky>
@@ -29,7 +32,7 @@
 
 <script>
 	import Sticky from '@/components/Sticky' //引入吸附顶部组件
-	import { getCatList } from '@/api/consulting'
+	import { getCategoryList } from '@/api/article'
 	import { pickerOptions } from '@/utils' //引入时间选择器 通用区间设置
 	export default {
 		name: 'CategoryList',
@@ -39,49 +42,45 @@
 		data() {
 			return {
 				searchKeyword: '', //搜索栏关键词
-				searchTime: '', //搜索栏 时间段
+				searchTime: [], //搜索栏 时间段
 				searchTimesOption: {
 					shortcuts: pickerOptions //通用区间设置-当日-当周-当月-近三月
 				},
 				category: [],//分类
-				count:0,
+				selectCategorys:[],
 				loading: true,
+				
+				props:{
+					label:'name',
+					value:'id',
+					children:'sub_cat'
+				}
 			};
 		},
 		created() {
 			this.getCategory();
 		},
 		methods: {
-			search() { //搜索
-				if(this.searchTime !==''){
-					this.$emit('search',this.searchKeyword , this.searchTime[0] , this.searchTime[1] )
-				}else{
-					this.$emit('search',this.searchKeyword,'','')
-				}
+			timeChange(value){
+				console.log(value)
 			},
-			changeCategory(id,name,index) { //变更分类
-				this.searchKeyword = ''
-				this.searchTime = ''
-				// this.$emit.formList.changeCategory(id,name)
-				this.$emit('changeCategory',id)
-				for(let i=0;i<this.category.length;i++){
-					this.category[i].active = false
-				}
-				this.category[index].active = true
+			handleChange(value){
+				this.selectCategorys = value
+			},
+			search() { //搜索
+				let cat = this.selectCategorys[this.selectCategorys.length-1];
+				let keyword = this.searchKeyword;
+				let start = this.searchTime !== null ?this.searchTime[0]:"";
+				let end = this.searchTime !== null ?this.searchTime[1]:"";
+				this.$emit('search', cat , keyword , start , end )
 			},
 			getCategory() { //获取分类
 				this.loading = true
-				this.category.push({"id":"","name":"All","count":0});
 				let data = {
 					"deleted": this.$route.name === "Recycle"
 				};
-				getCatList(data).then(response => {
-					for (var i = 0; i < response.data.length; i++) { 
-						this.category.push(response.data[i]);
-						this.$set(this.category[i], 'active', false)  //追加分类点击状态
-						this.category[0].count += response.data[i].count ;
-					}
-					this.category[0].active = true
+				getCategoryList(data).then(response => {
+					this.category = response.data
 					this.loading = false
 				})
 			}
@@ -93,7 +92,9 @@
 	.left-search-bar .search .search-times .el-range__close-icon {
 		margin-right: -10px;
 	}
-
+	.left-search-bar .el-cascader {
+		width: 100%;
+	}
 	.left-search-bar .search .search-times .el-range-separator {
 		padding: 0px;
 	}

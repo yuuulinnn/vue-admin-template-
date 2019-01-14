@@ -2,6 +2,8 @@ import Vue from 'vue'
 import 'font-awesome/scss/font-awesome.scss' //font-awesome
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
+import CKEditor from '@ckeditor/ckeditor5-vue';
+
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/en' // lang i18n
@@ -17,6 +19,7 @@ import '@/icons' // icon
 import '@/permission' // permission control
 
 Vue.use(ElementUI, { locale })
+
 
 Vue.config.productionTip = false
 

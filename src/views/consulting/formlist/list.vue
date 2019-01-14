@@ -375,8 +375,7 @@
 </script>
 <style rel="stylesheet/scss" lang="scss">
 	.app-container {
-		padding: 13px 0px;
-
+		
 		.el-table--medium td,
 		.app-container .el-table--medium th {
 			padding: 14px 0 10px;

@@ -2,23 +2,14 @@
 	<el-row :gutter="20">
 		<el-col :xl="4" :lg="5">
 			<div class="grid-content left-content">
-				<category-list ref="categoryList" @changeCategory="changeCategory" @search="search"></category-list>
+				<category-list ref="categoryList"  @search="search"></category-list>
 			</div>
 		</el-col>
 		<el-col :xl="20" :lg="19">
 			<div class="grid-content right-content">
 				<div class="app-container" v-loading="loading">
-					<div class="artivle-filter">
-						<el-radio-group v-model="statusFilterActive">
-							<el-radio v-for="(item,index) in statusFilter" :key="item.name" @change="changeStatusFilter(item.name)" :label="index+1">{{item.name}}({{item.count}})</el-radio>
-						</el-radio-group>
-					</div>
 					<div class="artivle-batch-bar">
 						<el-checkbox class="check-all" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange"></el-checkbox>
-						<el-button :loading="false" size="mini" class="batch-btn" @click="handleRead(checked,false)" :disabled="unChecked">
-							<i class="fa fa-envelope-open-o"></i>읽음</el-button>
-						<el-button :loading="false" size="mini" class="batch-btn" @click="handleImportant(checked,true)" :disabled="unChecked">
-							<i class="fa fa-star"></i>중요</el-button>
 						<el-button :loading="false" size="mini" class="batch-btn" @click="handleDelete(checked)" :disabled="unChecked">
 							<i class="fa fa-trash-o"></i><span v-if="listQuery.deleted">영구삭제</span><span v-else>삭제</span></el-button>
 						<el-button :loading="false" size="mini" class="batch-btn" v-if="listQuery.deleted" @click="handleRecover(checked)"
@@ -75,7 +66,7 @@
 
 					</el-table>
 					<div class="pagination-container">
-						<el-pagination :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" :total="total"
+						<el-pagination :current-page="listQuery.page" :page-sizes="[12,20,30, 50]" :page-size="listQuery.limit" :total="total"
 						 background layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
 					</div>
 				</div>
@@ -109,7 +100,7 @@
 				detailLink:'',
 				listQuery: {
 					page: 1,
-					limit: 10,
+					limit: 12,
 					cat_id: 'all',
 					deleted: this.$route.name === "Recycle",
 					status: '',
@@ -141,29 +132,11 @@
 			this.getList()
 		},
 		methods: {
-			search(keyword, startTime, endTime) {
+			search(cat,keyword, startTime, endTime) {
+				this.listQuery.cat_id = cat
 				this.listQuery.keyword = keyword
 				this.listQuery.start = startTime
 				this.listQuery.end = endTime
-				this.getList()
-			},
-			changeCategory(id) {
-				this.listQuery = {
-					page: 1,
-					limit: 10,
-					cat_id: id,
-					deleted: this.$route.name === "Recycle",
-					status: '',
-					keyword: '',
-					start: '',
-					end: '',
-				}
-				this.statusFilterActive = 1
-				this.getList()
-			},
-			changeStatusFilter(name) {
-				this.listQuery.page = 1
-				this.listQuery.status = name
 				this.getList()
 			},
 			getList() {
@@ -172,9 +145,6 @@
 				this.checked = []
 				this.isIndeterminate = false
 				getArticleList(this.listQuery).then(response => {
-					this.changeCategory.searchKeyword = ''
-					this.changeCategory.searchStartTime = ''
-					this.changeCategory.searchEndTime = ''
 					this.list = response.data
 					this.id = []
 					for (let i = 0; i < response.data.length; i++) {
@@ -191,96 +161,6 @@
 					this.loading = false
 				})
 			},
-			handleImportant(id, val) {
-				this.loading = true
-				let data = {
-					"id": Array.isArray(id)?id:[id],
-					"type": val ? "important" : "unimportant"
-				};
-				batForm(data).then(valid => {
-					if (valid) {	
-						let rightid = function(ids){
-							for (let i = 0; i < data.id.length; i++) {
-								if(data.id[i]===ids){
-									return true
-								}
-							}
-						}
-						if (val) {
-							for (let i = 0; i < this.list.length; i++) {
-								if(rightid(this.list[i].id)) {
-									this.list[i].important = true;
-								}		
-							}
-							this.$message({
-								type: 'success',
-								message: '설치되습니다'
-							});
-						} else {
-							for (let i = 0; i < this.list.length; i++) {
-								if(rightid(this.list[i].id)) {
-									this.list[i].important = false;
-								}		
-							}
-							this.$message({
-								type: 'info',
-								message: '해제되습니다'
-							});
-						} 
-						
-						this.loading = false
-
-					} else {
-						console.log('error submit!!')
-						return false
-					}
-				})
-			},
-			handleRead(id, val) {
-				this.loading = true
-					let data = {
-						"id": Array.isArray(id)?id:[id],
-						"type": val ? "unread" : "read"
-					};
-					batForm(data).then(valid => {
-						if (valid) {
-							let rightid = function(ids){
-								for (let i = 0; i < data.id.length; i++) {
-									if(data.id[i]===ids){
-										return true
-									}
-								}
-							}
-							if (val) {
-								for (let i = 0; i < this.list.length; i++) {
-									if(rightid(this.list[i].id)) {
-										this.list[i].unread = true;
-									}		
-								}
-								this.$message({
-									type: 'success',
-									message: '설치되습니다'
-								});
-							} else {
-								for (let i = 0; i < this.list.length; i++) {
-									if(rightid(this.list[i].id)) {
-										this.list[i].unread = false;
-									}		
-								}
-								this.$message({
-									type: 'info',
-									message: '해제되습니다'
-								});
-							} 
-							
-							this.loading = false
-	
-						} else {
-							console.log('error submit!!')
-							return false
-						}
-					})
-			},
 			handleRecover(id) {
 				this.$confirm('이 정보를 복원 하시겠습니까?', '팁스', {
 					confirmButtonText: '예',
@@ -291,7 +171,7 @@
 						"id": Array.isArray(id)?id:[id],
 						"type": "recover"
 					};
-					batForm(data).then(valid => {
+					batchArticle(data).then(valid => {
 						if (valid) {
 							this.getList()
 						} else {
@@ -317,7 +197,7 @@
 						"id": Array.isArray(id)?id:[id],
 						"type": this.listQuery.deleted ? "delete" : "remove"
 					};
-					batForm(data).then(valid => {
+					batchArticle(data).then(valid => {
 						if (valid) {
 							this.getList()
 						} else {
@@ -356,7 +236,7 @@
 </script>
 <style rel="stylesheet/scss" lang="scss">
 	.app-container {
-		padding: 13px 0px;
+		
 
 		.el-table--medium td,
 		.app-container .el-table--medium th {
