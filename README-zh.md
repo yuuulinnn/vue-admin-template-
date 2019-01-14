@@ -5,10 +5,10 @@
 3. element http://element-cn.eleme.io/#/zh-CN/component/input 
 4. mock.js http://mockjs.com/examples.html 本地数据模拟
 5. esay-mock https://easy-mock.com/   远端数据模拟  
-6. sweet alert https://sweetalert.js.org/guides/ 弹窗模态框
+6. ~~sweet alert https://sweetalert.js.org/guides/ 弹窗模态框~~  已移除 20190114
 7. printjs http://printjs.crabbly.com/  打印插件
-8. 
-
+8. CKEditor5 https://ckeditor.com/docs/ckeditor5/latest/index.html   CKEditor5 编辑器
+9. vue-image-crop-upload https://github.com/dai-siki/vue-image-crop-upload   缩略图裁切工具
 
 ## Build Setup
 
