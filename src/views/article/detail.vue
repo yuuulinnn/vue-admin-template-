@@ -1,102 +1,129 @@
 <template>
-	<el-row>
+	<el-row class="article-detail" v-loading="loading">
 		<el-col :span="20">
-			<div class="grid-content bg-purple article-detail">
-				<div class="createPost-container" v-loading="loading">
-					<el-form class="form-container">
-						<sticky class="sub-navbar">
-							<div class="top-bar">
-								<el-button type="primary" size="small">
-									<router-link :to="recycle?'/consulting/recycle':'/consulting/index'" class="link-type">
-										<i class="fa fa-list"></i>목록
-									</router-link>
-								</el-button>
-								<el-button style="margin-left: 10px;" type="primary" size="small" @click="printPage()"><i class="fa fa-print"></i>프린트
-								</el-button>
-								<el-button type="warning" size="small" @click="handleDelete"><i class="fa fa-trash-o"></i>삭제</el-button>
-								<el-button style="margin-left: 10px;" size="small" type="success" @click="saveForm"><i class="fa fa-floppy-o"></i>저장
-								</el-button>
-							</div>
-						</sticky>
-						<div id="printJS-form">
-
-						</div>
-						<div class="message-content">
-							<div class="head">
-								<div class="title">
-									<el-input v-model="formData.title" placeholder="제목입력해주십시요" ></el-input>
-								</div>
-								<div class="author">
-									<el-row>
-										<el-col :span="6">
-											카테고리：
-											<el-cascader expand-trigger="hover" :props="props" :options="category" :v-model="selectCategorys"
-											 :show-all-levels="false" :clearable="true" :change-on-select="true" @change="handleChange">
-											</el-cascader>
-										</el-col>
-										<el-col :span="6">
-											<div class="demo-input-suffix pull-left">
-												작성자：
-												<el-input placeholder="이름" v-model="formData.author">
-												</el-input>
-											</div>
-										</el-col>
-										<el-col :span="6">
-											<div class="demo-input-suffix pull-left">
-												작성일：
-												<el-date-picker
-													v-model="formData.time"
-													type="datetime"
-													placeholder="选择日期时间">
-												</el-date-picker>
-											</div>
-										</el-col>
-									</el-row>
-								</div>
-								<div class="thumnail">
-									
-								</div>
-							</div>
-							<div class="content-text">
-								<ckeditor :editor="editor" v-model="editorData" :config="editorConfig"></ckeditor>
-							</div>
-							<div class="content-file" v-loading="fileloading">
-								<div class="title">
-									<i class="fa fa-paperclip"></i>첨부파일
-									<span>()</span>
-								</div>
-								<ul>
-									<el-upload :action="fileApiUri" list-type="picture-card" :headers="token" :data="{'type':'form'}" :file-list="filesList"
-									 :on-success="fileUpdataSuccess" :limit="3" :on-exceed="handleExceed" :before-remove="beforeFileDelete"
-									 :before-upload="beforeUpload" :on-preview="handlePictureCardPreview">
-										<i class="el-icon-plus"></i>
-									</el-upload>
-									<el-dialog :visible.sync="dialogVisible">
-										<div class="upload-filelist">
-											<span class="title">{{fileName}}</span>
-											<a class="btn-download" :href="dialogImageUrl" :download="fileName">Download</a>
-										</div>
-										<img width="100%" :src="dialogImageUrl" alt="">
-									</el-dialog>
-								</ul>
-							</div>
-						</div>
-					</el-form>
+			<div class="grid-content">
+				<div class="content">
+					<div class="title">
+						<div class="sub-title">제목</div>
+						<el-input v-model="formData.title" placeholder="제목을입력해주십시요" clearable>
+						</el-input>
+					</div>
+					<div class="thumnail">
+						<div class="sub-title">썸네일</div>
+						<ul>
+							<li v-for="(item,index) in formData.thumb" :key="item.id">
+								<span class="btn-group">
+									<span class="btn-item">
+										<i class="el-icon-caret-left" @click="moveLeftThumb(item)" v-if="index !==0"></i>
+										<i class="el-icon-zoom-in" @click="zoomThumb(item)"></i>
+										<i class="el-icon-delete" @click="deleteThumb(item)"></i>
+										<i class="el-icon-caret-right" @click="moveRtightThumb(item)" v-if="index+1 !==formData.thumb.length"></i>
+									</span>
+								</span>
+								<img :src="item.url">
+							</li>
+						</ul>
+						<i class="el-icon-plus avatar-uploader-icon" @click="toggleShow" :style="{width:thumbnail.width+'px',height:thumbnail.height+'px','line-height':thumbnail.height+'px'}"></i>
+						<my-upload field="img" @crop-success="cropSuccess" @crop-upload-success="cropUploadSuccess" @crop-upload-fail="cropUploadFail"
+						 v-model="thumbnail.show" :langExt="thumbnail.lang" :width="thumbnail.width" :height="thumbnail.height" :headers="token"
+						 :url="fileApiUri" :params="params" :noSquare="true" :noCircle="true" img-format="png">
+						</my-upload>
+						<el-dialog title="Thumbnail" :visible.sync="thumbnail.zoomThumbOpen" width="30%">
+							<span>
+								<img :src="thumbnail.zoomUrl">
+							</span>
+						</el-dialog>
+					</div>
+					<div class="sub-title">내용</div>
+					<div class="content-text">
+						<ckeditor :editor="editor" v-model="formData.content" :config="editorConfig"></ckeditor>
+					</div>
+					<div class="sub-title">첨부파일</div>
+					<div class="files-list" v-loading="fileloading">
+						<ul>
+							<el-upload :action="fileApiUri" list-type="picture-card" :headers="token" :data="{'type':'form'}" :file-list="formData.files"
+							 :on-success="fileUpdataSuccess" :limit="3" :on-exceed="handleExceed" :before-remove="beforeFileDelete"
+							 :before-upload="beforeUpload" :on-preview="handlePictureCardPreview">
+								<i class="el-icon-plus"></i>
+							</el-upload>
+							<el-dialog :title="fileName" :visible.sync="dialogVisible">
+								<img :src="dialogImageUrl" alt="">
+								<span slot="footer" class="dialog-footer">
+									<a class="btn-download" :href="dialogImageUrl" :download="fileName">Download</a>
+								</span>
+							</el-dialog>
+						</ul>
+					</div>
 				</div>
 			</div>
 		</el-col>
 		<el-col :span="4">
-			<div class="grid-content bg-purple-light">123123123</div>
+			<div class="grid-content">
+				<sticky>
+					<div class="left-bar">
+						<div class="category">
+							<div class="sub-title">카테고리</div>
+							<el-cascader expand-trigger="hover" :props="props" :options="category" :value="formData.cat" :v-model="selectCategorys"
+							 :show-all-levels="false" :clearable="true" :change-on-select="true" @change="handleChange">
+							</el-cascader>
+						</div>
+						<div class="author">
+							<div class="sub-title">작성자</div>
+							<el-input placeholder="이름" v-model="formData.author" clearable>
+							</el-input>
+						</div>
+						<div class="date">
+							<div class="sub-title">작성일</div>
+							<el-date-picker v-model="formData.time" type="datetime" placeholder="选择日期时间">
+							</el-date-picker>
+						</div>
+						<div class="swich">
+							<div class="inline-sub-title">공개 여부</div>
+							<el-switch v-model="formData.show" active-color="#13ce66" inactive-color="#ccc">
+							</el-switch>
+						</div>
+						<div class="swich">
+							<div class="inline-sub-title">상단 노출</div>
+							<el-switch v-model="formData.top" active-color="#13ce66" inactive-color="#ccc">
+							</el-switch>
+						</div>
+						<div class="swich">
+							<div class="inline-sub-title">메인 노출</div>
+							<el-switch v-model="formData.main" active-color="#13ce66" inactive-color="#ccc">
+							</el-switch>
+						</div>
+						<div class="btn-group">
+							<el-button type="primary" size="small">
+								<router-link :to="recycle?'/consulting/recycle':'/consulting/index'" class="link-type">
+									<i class="fa fa-list"></i>목록
+								</router-link>
+							</el-button>
+							<el-button style="margin-left: 10px;" type="primary" size="small" @click="printPage()"><i class="fa fa-print"></i>프린트
+							</el-button>
+							<el-button type="warning" size="small" @click="handleDelete"><i class="fa fa-trash-o"></i>삭제</el-button>
+							<el-button style="margin-left: 10px;" size="small" type="success" @click="saveForm"><i class="fa fa-floppy-o"></i>저장
+							</el-button>
+						</div>
+					</div>
+				</sticky>
+			</div>
 		</el-col>
 	</el-row>
-
 </template>
 
 <script>
-	import print from 'print-js' //打印插件
+	import {
+		mapGetters
+	} from 'vuex' //vuex状态管理器
+	import Vue from 'vue'; //vue对象
+	import print from 'print-js'; //打印插件
 	import CKEditor from '@ckeditor/ckeditor5-vue';
-	import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-	import Sticky from '@/components/Sticky' // 粘性header组件
+	import ClassicEditor from '@ckeditor/ckeditor5-build-classic'; //CKEditor 编辑器
+	import myUpload from 'vue-image-crop-upload'; //图片上传切图
+	import Sticky from '@/components/Sticky'; // 粘性header组件
+	import {
+		uploadThumbnail
+	} from '@/utils' //缩略图裁切 韩文语言包
 	import {
 		getArticleDetail,
 		batchArticle,
@@ -114,15 +141,34 @@
 		name: 'FormDetail',
 		components: {
 			Sticky,
-			ckeditor: CKEditor.component
+			ckeditor: CKEditor.component,
+			'my-upload': myUpload
+		},
+		computed: {
+			...mapGetters([
+				'name'
+			])
 		},
 		data() {
 			return {
+				thumbnail: { //缩略图上传设置
+					width: 200, //剪切宽度
+					height: 200, //剪切高度
+					limit: 5, //最大上传数量
+					show: false,
+					zoomUrl: '',
+					zoomThumbOpen: false,
+					lang: uploadThumbnail //语言设置
+				},
+				params: {
+					type: 'thumbnail'
+				},
+				imgDataUrl: '', // the datebase64 url of created image
 				editor: ClassicEditor,
-                editorData: '<p>Content of the editor.</p>',
-                editorConfig: {
-                    // The configuration of the editor.
-                },
+				editorData: '<p>Content of the editor.</p>',
+				editorConfig: {
+					// The configuration of the editor.
+				},
 				category: [],
 				selectCategorys: [],
 				props: {
@@ -131,7 +177,6 @@
 					children: 'sub_cat'
 				},
 				formData: [],
-				filesList: [],
 				sendForm: [],
 				token: {
 					"X-Token": getToken()
@@ -155,7 +200,69 @@
 			this.fetchData(id)
 		},
 		methods: {
-			handleChange(value){
+			deleteThumb(file) {
+				this.$confirm('회복할 수 없는 조작입니다!', '팁스', {
+					confirmButtonText: '삭제',
+					cancelButtonText: '취소',
+					type: 'warning'
+				}).then(() => {
+					let del = {
+						"id": [file.id]
+					}
+					delFile(del).then(valid => {
+						if (valid) {
+							this.formData.thumb = this.formData.thumb.filter(item => {
+								if (item.id === file.id) return false
+								return true
+							})
+							this.$message({
+								type: 'success',
+								message: '삭제되엿습니다'
+							});
+						} else {
+							console.log('error submit!!')
+							return false
+						}
+					})
+				}).catch(() => {
+					this.$message({
+						type: 'info',
+						message: '취소되엿습니다'
+					});
+					reject()
+				});
+			},
+			zoomThumb(file) {
+				this.thumbnail.zoomUrl = file.url;
+				this.thumbnail.zoomThumbOpen = true;
+			},
+			moveLeftThumb(item) {
+				var index = this.formData.thumb.indexOf(item);
+				var tempOption = this.formData.thumb[index - 1];
+				Vue.set(this.formData.thumb, index - 1, this.formData.thumb[index]);
+				Vue.set(this.formData.thumb, index, tempOption);
+			},
+			moveRtightThumb(item) {
+				var index = this.formData.thumb.indexOf(item);
+				var tempOption = this.formData.thumb[index + 1];
+				Vue.set(this.formData.thumb, index + 1, this.formData.thumb[index]);
+				Vue.set(this.formData.thumb, index, tempOption);
+			},
+			toggleShow() {
+				if (this.formData.thumb.length === this.thumbnail.limit) {
+					this.$message.warning('최대 ' + this.thumbnail.limit + '개의 파일 업로드가능합니다');
+				} else {
+					this.thumbnail.show = !this.thumbnail.show;
+				}
+			},
+			cropSuccess(imgDataUrl, field) {
+				this.imgDataUrl = imgDataUrl;
+			},
+			cropUploadSuccess(jsonData, field) {
+				this.formData.thumb.push(jsonData.data)
+			},
+			cropUploadFail(status, field) {},
+			handleChange(value) {
 				this.selectCategorys = value
 			},
 			beforeUpload(file) {
@@ -192,7 +299,7 @@
 				this.$message.warning(`최대 3개의 파일 업로드가능합니다`);
 			},
 			fileUpdataSuccess(response, file, fileList) {
-				this.filesList.push(response.data)
+				this.formData.files.push(response.data)
 				this.submitForm();
 			},
 			beforeFileDelete(file, fileList) {
@@ -229,7 +336,7 @@
 				})
 			},
 			fileDelete(id) {
-				this.filesList = this.filesList.filter(item => {
+				this.formData.files = this.formData.files.filter(item => {
 					if (item.id === id) return false
 					return true
 				})
@@ -244,12 +351,11 @@
 				this.loading = true
 				getArticleDetail(id).then(response => {
 					this.formData = response.data;
-					this.filesList = response.files;
 					let data = {
 						"deleted": this.$route.name === "recycleDetail"
 					};
 					getCategoryList(data).then(response => {
-						this.category = response.data
+						this.category = response.data;
 						this.loading = false
 					})
 				}).catch(err => {
@@ -272,7 +378,7 @@
 					"title": this.formData.title,
 					"content": this.formData.content,
 					"remarks": this.formData.remarks,
-					"files": this.filesList,
+					"files": this.formData.files,
 				}
 				updataArticle(data).then(valid => {
 					if (valid) {
@@ -328,254 +434,183 @@
 	}
 </script>
 <style rel="stylesheet/scss" lang="scss">
-	.article-detail {
-		.author {
-			.el-input {
-				width: auto;
-			}
-		}
+	.avatar-uploader .el-upload {
+		border: 1px dashed #d9d9d9;
+		border-radius: 6px;
+		cursor: pointer;
+		position: relative;
+		overflow: hidden;
 	}
 
-	.title {
-		.el-input__inner {
-			height: auto;
-		}
-
-		.el-input-group__prepend {
-			border: none;
-			width: 160px;
-			padding: 0px;
-
-			.el-cascader {
-				padding-right: 0px;
-			}
-
-			.el-input__inner {
-				margin-right: 1px;
-				border-right: 0px;
-				border-radius: 4px;
-				border-top-right-radius: 0px;
-				border-bottom-right-radius: 0px;
-			}
-		}
+	.avatar-uploader .el-upload:hover {
+		border-color: #409EFF;
 	}
 
-	.el-dialog__body {
-		padding-top: 0px;
+	.avatar-uploader-icon {
+		font-size: 28px;
+		color: #8c939d;
+		width: 178px;
+		height: 178px;
+		line-height: 178px;
+		text-align: center;
 	}
 
-	.el-dialog__header {
-		padding-top: 0px;
+	.avatar {
+		width: 178px;
+		height: 178px;
+		display: block;
 	}
 
-	.upload-filelist {
-		height: 50px;
-		line-height: 37px;
+	.el-cascader {
+		line-height: 39px;
+		width: 100%;
+	}
 
-		.title {
-			font-size: 18px;
-		}
-
-		.btn-download {
-			background: #20A0FF;
-			color: #fff;
-			padding: 10px 15px;
-			border-radius: 4px;
-			margin-left: 15px;
-		}
+	.el-dialog__footer .btn-download {
+		background: #20A0FF;
+		color: #fff;
+		padding: 10px 15px;
+		border-radius: 4px;
+		margin-left: 15px;
 	}
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 	@import "src/styles/mixin.scss";
 
 	.article-detail {
-
-		.author,
-		.title {
-			padding: 15px 0px 15px 0px;
-			border-bottom: 1px solid #eee;
-		}
-	}
-
-	.sub-navbar {
-		padding-right: 0px;
-
-		.top-bar {
+		.left-bar {
+			margin: 30px 30px 30px 0px;
+			padding: 0px 20px 20px 20px;
+			overflow: hidden;
 			background: #fff;
-			border-bottom: 1px solid #e7eaec;
-			padding: 15px 30px;
-
-			button {
-				.link-type {
-					color: #fff;
-				}
-
-				i {
-					padding-right: 7px;
+			.category {
+				.sub-title {
+					border: none;
+					margin-top: 0px;
 				}
 			}
+			.date {
+				padding-bottom: 10px;
+				border-bottom: 1px solid #eee;
+			}
+			.swich {
+				padding: 10px 0px;
+				border-bottom: 1px solid #eee;
 
-			.tools-bar {
-				float: left;
-
-				i {
-					padding-right: 7px;
+				.inline-sub-title {
+					display: inline-block;
+					padding-right: 8px;
 				}
 			}
 		}
-	}
 
-	#printJS-form {
-		width: 100%;
-		height: 0px;
-		overflow: hidden;
-	}
-
-	.message-content {
-		padding: 0px 30px 30px;
-
-
-
-		.content-text {
-			padding: 25px 0px;
-			border-bottom: 1px solid #e7eaec;
-			font-size: 15px;
-			line-height: 24px;
+		.sub-title {
+			border-top: 1px solid #eee;
+			margin-bottom: 4px;
+			margin-top: 10px;
+			font-size: 16px;
+			line-height: 30px;
+			padding-top: 7px;
 		}
 
-		.remark-edit {
+		.content {
+			margin: 30px;
+			background: #fff;
+			padding: 0px 20px 1px 20px;
 			.title {
-				margin-bottom: 15px;
-				margin-top: 25px;
-			}
-		}
-
-		.content-file {
-			padding: 25px 0px 0px;
-			border-bottom: 1px solid #e7eaec;
-
-			.title {
-				i {
-					padding-right: 7px;
-				}
-
-				span {
-					color: #777;
+				.sub-title {
+					border: none;
+					margin-top: 0px;
 				}
 			}
+			.thumnail {
+				ul {
+					padding: 0px;
+					margin: 0px;
 
-			ul {
-				margin: 15px 0px 25px;
-				padding: 0px;
+					li {
+						img {
+							width: 200px;
+							height: 200px;
+						}
 
-				li {
-					float: left;
-					margin-right: 15px;
-					text-align: center;
-					list-style: none;
-					background-color: #fff;
+						.btn-item {
+							padding-top: 85px;
 
-					.download {
+							i {
+								background: rgba(0, 0, 0, 0.8);
+								width: 30px;
+								height: 30px;
+								border-radius: 15px;
+								font-size: 16px;
+								line-height: 30px;
+								text-align: center;
+								color: #ccc;
+							}
+
+							i:hover {
+								color: #fff;
+								cursor: pointer;
+							}
+						}
+
+						list-style:none;
+						float: left;
+						margin-right: 15px;
+						overflow: hidden;
 						position: relative;
-						width: 200px;
-						height: 150px;
-						border: 1px solid #e7eaec;
-						border-radius: 3px;
-						background-size: cover;
 
-						p {
+						span:hover {
+							opacity: 1;
+						}
+
+						span {
 							position: absolute;
-							bottom: 0px;
 							width: 100%;
-							margin: 0px;
-							line-height: 30px;
-							background: #f8f8f8;
-							border-top: 1px solid #e7eaec;
-						}
-
-						a {
-							opacity: 0.1;
-							z-index: -1;
-							position: absolute;
-							width: 40px;
-							height: 40px;
-							line-height: 40px;
-							background: #fff;
-							border-radius: 50%;
-							left: 65%;
-							top: 50%;
-							margin-left: -20px;
-							margin-top: 0px;
-							transition: all 0.1s ease-in;
-							box-shadow: 0px 0px 10px #444;
+							height: 100%;
+							left: 0;
+							top: 0;
+							cursor: default;
+							text-align: center;
+							color: #fff;
+							opacity: 0;
+							font-size: 20px;
+							background-color: rgba(0, 0, 0, .5);
+							-webkit-transition: opacity .3s;
+							transition: opacity .3s;
 
 							i {
-								color: #666;
-							}
-						}
-
-						a:first-child {
-							left: 38%;
-						}
-
-						a:hover {
-							i {
-								color: #000;
+								color: #fff;
+								position: static;
+								font-size: inherit;
 							}
 						}
 					}
 				}
 
-				li:hover {
-					a {
-						margin-top: -30px;
-						opacity: 1;
-						z-index: 9;
-					}
+				.avatar-uploader-icon {
+					cursor: pointer;
+					background-color: #fbfdff;
+					border: 1px dashed #c0ccda;
+					border-radius: 6px;
+					-webkit-box-sizing: border-box;
+					box-sizing: border-box;
+					width: 148px;
+					height: 148px;
+					line-height: 146px;
+					vertical-align: top;
 				}
-			}
-		}
-	}
 
-	.createPost-container {
-		margin: 30px;
-		background: #fff;
-		border: 1px solid #e7eaec;
-		position: relative;
-
-		.createPost-main-container {
-			padding: 40px 45px 20px 50px;
-
-			.postInfo-container {
-				position: relative;
-				@include clearfix;
-				margin-bottom: 10px;
-
-				.postInfo-container-item {
-					float: left;
+				.avatar-uploader-icon:hover {
+					border-color: #409EFF;
 				}
 			}
 
-			.editor-container {
-				min-height: 500px;
-				margin: 0 0 30px;
-
-				.editor-upload-btn-container {
-					text-align: right;
-					margin-right: 10px;
-
-					.editor-upload-btn {
-						display: inline-block;
-					}
+			.files-list {
+				ul {
+					padding-left: 0px;
 				}
 			}
-		}
-
-		.word-counter {
-			width: 40px;
-			position: absolute;
-			right: -10px;
-			top: 0px;
 		}
 	}
 </style>

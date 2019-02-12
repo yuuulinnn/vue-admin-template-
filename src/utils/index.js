@@ -87,6 +87,26 @@ export function priceType(number,n) {
 		return show_html.split("").reverse().join("") + "." + sub_xs;  
 	}
 }
+export const uploadThumbnail = {
+		hint: '이미지를 선택하세요',
+		loading: '업로드 중……',
+		noSupported: '이 기능을 지원할수없는 브라우저입니다  IE10이상 또는 Chrome사용하세요!',
+		success: '완료',
+		fail: '오류',
+		preview: '미리보기',
+		btn: {
+				off: '취소',
+				close: '닫기',
+				back: '이전 단계',
+				save: '저장'
+		},
+		error: {
+				onlyImg: '지원할 수 없는 타입 입니다',
+				outOfSize: '파일 너무 큽니다. 허용 파일 용량 는:',
+				lowestPx: '이미지 최소 사이즈 는(폭*높이)：'
+		}
+}
+
 
 export const pickerOptions = [
   {

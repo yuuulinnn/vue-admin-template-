@@ -27,7 +27,7 @@ export function batchArticle(data) {
   })
 }
 
-export function updArticle(data) {
+export function updataArticle(data) {
   return request({
     url: '/article/upd',
     method: 'post',
