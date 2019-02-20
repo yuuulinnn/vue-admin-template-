@@ -36,7 +36,8 @@
 					</div>
 					<div class="sub-title">내용</div>
 					<div class="content-text">
-						<ckeditor :editor="editor" v-model="formData.content" :config="editorConfig"></ckeditor>
+						
+						<ckeditor id="editor" :editor="editor" @ready="onReady" v-model="formData.content" :config="editorConfig"></ckeditor>
 					</div>
 					<div class="sub-title">첨부파일</div>
 					<div class="files-list" v-loading="fileloading">
@@ -112,13 +113,12 @@
 </template>
 
 <script>
-	import {
-		mapGetters
-	} from 'vuex' //vuex状态管理器
 	import Vue from 'vue'; //vue对象
 	import print from 'print-js'; //打印插件
-	import CKEditor from '@ckeditor/ckeditor5-vue';
-	import ClassicEditor from '@ckeditor/ckeditor5-build-classic'; //CKEditor 编辑器
+	// import CKEditor from '@ckeditor/ckeditor5-vue';
+	import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document'; //CKEditor 编辑器
+	import '@ckeditor/ckeditor5-build-decoupled-document/build/translations/ko.js'; //CKEditor韩文语言包
+	import SimpleUpload from 'ckeditor5-simple-upload/src/simpleupload';
 	import myUpload from 'vue-image-crop-upload'; //图片上传切图
 	import Sticky from '@/components/Sticky'; // 粘性header组件
 	import {
@@ -137,17 +137,15 @@
 		updFile,
 		delFile
 	} from '@/api/files'
+
+
+
+
 	export default {
 		name: 'FormDetail',
 		components: {
 			Sticky,
-			ckeditor: CKEditor.component,
 			'my-upload': myUpload
-		},
-		computed: {
-			...mapGetters([
-				'name'
-			])
 		},
 		data() {
 			return {
@@ -164,10 +162,17 @@
 					type: 'thumbnail'
 				},
 				imgDataUrl: '', // the datebase64 url of created image
-				editor: ClassicEditor,
-				editorData: '<p>Content of the editor.</p>',
+				
+				editor: DecoupledEditor,
+				editorData: '',
 				editorConfig: {
-					// The configuration of the editor.
+					removePlugins:['UploadAdapter','EasyImage',''],
+					
+					language: 'ko',
+					ckfinder: {
+						uploadUrl:'http://easymock.ithanhua.cn/mock/5c526ddc5c5e226593eba853/vue-admin/test'
+						// 后端处理上传逻辑返回json数据,包括uploaded 上传的字节数 和url两个字段{"uploaded": 1,"url": "http://xxx.jpg"}
+					},
 				},
 				category: [],
 				selectCategorys: [],
@@ -190,7 +195,7 @@
 				fileApiUri: process.env.BASE_API + '/files/upd'
 			}
 		},
-		created() {
+		created(){
 			if (this.$route.name === "recycleDetail") {
 				this.recycle = true
 			} else {
@@ -200,6 +205,14 @@
 			this.fetchData(id)
 		},
 		methods: {
+			onReady( editor )  {
+				DecoupledEditor.builtinPlugins.map( plugin => plugin.pluginName );
+                // Insert the toolbar before the editable area. 初始化编辑器 加载toolbarUI
+                editor.ui.view.editable.element.parentElement.insertBefore(
+                    editor.ui.view.toolbar.element,
+                    editor.ui.view.editable.element
+                );
+            },
 			deleteThumb(file) {
 				this.$confirm('회복할 수 없는 조작입니다!', '팁스', {
 					confirmButtonText: '삭제',
@@ -483,16 +496,19 @@
 			padding: 0px 20px 20px 20px;
 			overflow: hidden;
 			background: #fff;
+
 			.category {
 				.sub-title {
 					border: none;
 					margin-top: 0px;
 				}
 			}
+
 			.date {
 				padding-bottom: 10px;
 				border-bottom: 1px solid #eee;
 			}
+
 			.swich {
 				padding: 10px 0px;
 				border-bottom: 1px solid #eee;
@@ -517,12 +533,14 @@
 			margin: 30px;
 			background: #fff;
 			padding: 0px 20px 1px 20px;
+
 			.title {
 				.sub-title {
 					border: none;
 					margin-top: 0px;
 				}
 			}
+
 			.thumnail {
 				ul {
 					padding: 0px;
