@@ -15,7 +15,7 @@
   "dependencies": {
     "@ckeditor/ckeditor5-build-decoupled-document": "^11.2.0",
     "@ckeditor/ckeditor5-vue": "^1.0.0-beta.1",
-    "axios": "0.18.0",
+    "axios": "1.6.0",
     "ckeditor5-simple-upload": "^1.0.4",
     "element-ui": "^2.11.1",
     "font-awesome": "^4.7.0",
